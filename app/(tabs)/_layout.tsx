@@ -1,14 +1,17 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
-
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { HapticTab } from '../../components/HapticTab'; // Ensure this file exists
+import TabBarBackground from '../../components/ui/TabBarBackground'; // Ensure this file exists
+import { Colors } from '../../constants/Colors';
+import { useColorScheme } from '../../hooks/useColorScheme';
+import { ThemedText } from '../../components/ThemedText';
+import { House, MagnifyingGlass, Stack } from 'phosphor-react-native';
+import { useTranslation } from 'react-i18next';
+import "../../i18n";
 
 export default function TabLayout() {
+   const { t, i18n } = useTranslation();
   const colorScheme = useColorScheme();
 
   return (
@@ -16,28 +19,34 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
-        tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
           default: {},
         }),
-      }}>
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: t('tab.home'),
+          tabBarIcon: ({ color }) => <House size={28} color={color} />,
+          tabBarButton: HapticTab, // Move this here
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="search"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: t("tab.search"),
+          tabBarIcon: ({ color }) => <MagnifyingGlass size={28} color={color} />,
+          tabBarButton: HapticTab,
+        }}
+      />
+      <Tabs.Screen
+        name="library"
+        options={{
+          title: t("tab.library"),
+          tabBarIcon: ({ color }) => <Stack size={28} color={color} />,
+          tabBarButton: HapticTab,
         }}
       />
     </Tabs>

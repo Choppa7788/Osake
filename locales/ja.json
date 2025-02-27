@@ -1,0 +1,79 @@
+{
+    "greetings": {
+        "good_morning": "おはようございます",
+        "good_afternoon": "こんにちは",
+        "good_evening": "こんばんは"
+    },
+    "headers":{
+        "cocktails":"カクテル",
+        "bases":"人気なベース",
+        "search":"検索",
+        "yourLibrary":"あなたのライブラリ",
+        "selectLanguage":"言語を選択"
+    },
+    "library":{
+        "liked":"お気に入り",
+        "mybar":"マイバー",
+        "experimental":"実験的",
+        "random":"ランダム",
+        "language":"言語",
+        "feedback":"フィードバック",
+        "likedDrinks":"お気に入りのドリンク"
+    },
+    
+    "tab":
+    {  "home":"ホーム",
+        "library":"ライブラリ",
+        "search":"検索",
+        "settings":"設定"
+    },
+    "bases": {
+        "rum": "ラム",
+        "gin": "ジン",
+        "whisky": "ウイスキー",
+        "vodka": "ウォッカ",
+        "tequila": "テキーラ",
+        "brandy": "ブランデー"
+    },
+    "somethingCasual": {
+        "Something_special": "特別なもの",
+        "hard_drinks": "ハードドリンク",
+        "soft_drinks": "ソフトドリンク",
+        "something_casual": "カジュアルなもの",
+        "creamy_desserts": "クリーミーなデザート",
+        "unique_taste": "ユニークな味",
+        "fruity": "フルーティー"
+      },
+    "mustDrink": {
+        "must_drink": "バーで絶対飲む物",
+        "must_drink3": "モヒート",
+        "must_drink2": "マティーニ",
+        "must_drink1": "マルガリータ",
+        "must_drink4": "ウイスキーサワー"
+    },
+    "cocktails": {
+        "mojito": "モヒート",
+        "martini": "マティーニ",
+        "margarita": "マルガリータ",
+        "old_fashioned": "オールドファッション",
+        "daiquiri": "ダイキリ",
+        "cosmopolitan": "コスモポリタン"
+    },
+    "search": {
+        "search": "検索",
+        "search_placeholder": "何を飲みたいですか？"
+    },
+    "drinkList":{
+        "based_on":"ベースのドリンク",
+        "rum_description": "ラムは甘く、トーストした砂糖の風味があり、キャラメル、バニラ、スパイスのノートがあります",
+        "gin_description": "ジンはジュニパーベリーの風味があり、ハーブ、シトラス、スパイスのノートがあります",
+        "whisky_description": "ウイスキーはスモーキーで、キャラメル、バニラ、オークのノートがあります",
+        "vodka_description": "ウォッカはクリーンで、ほのかな甘みとペッパーのノートがあります",
+        "tequila_description": "テキーラはアガベの風味があり、シトラス、スパイス、ハーブのノートがあります",
+        "brandy_description": "ブランデーはフルーティーで、キャラメル、バニラ、オークのノートがあります"
+    },
+  "myBar":{
+    "pageTitle":"マイバー",
+    "addNew":"新しいものを追加"
+  }
+}

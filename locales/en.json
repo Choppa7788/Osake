@@ -1,0 +1,78 @@
+{
+    "greetings": {
+        "good_morning": "Good morning",
+        "good_afternoon": "Good afternoon",
+        "good_evening": "Good evening"
+    },
+    "headers": {
+        "cocktails": "Cocktails",
+        "bases": "Popular Bases",
+        "search": "Search",
+        "yourLibrary": "Your Library",
+        "selectLanguage": "Select Language"
+    },
+    "library": {
+        "liked": "Liked",
+        "mybar": "My Bar",
+        "experimental": "Experimental",
+        "random": "Random",
+        "language": "Language",
+        "feedback": "Feedback",
+        "likedDrinks": "Liked Drinks"
+    },
+    "tab": {
+        "home": "Home",
+        "library": "Library",
+        "search": "Search",
+        "settings": "Settings"
+    },
+    "bases": {
+        "rum": "Rum",
+        "gin": "Gin",
+        "whisky": "Whisky",
+        "vodka": "Vodka",
+        "tequila": "Tequila",
+        "brandy": "Brandy"
+    },
+    "somethingCasual": {
+        "Something_special": "Something special",
+        "hard_drinks": "Hard drinks",
+        "soft_drinks": "Soft drinks",
+        "something_casual": "Something casual",
+        "creamy_desserts": "Creamy desserts",
+        "unique_taste": "Unique taste",
+        "fruity": "Fruity"
+    },
+    "mustDrink": {
+        "must_drink": "Must drink at a bar",
+        "must_drink3": "Mojito",
+        "must_drink2": "Martini",
+        "must_drink1": "Margarita",
+        "must_drink4": "Whiskey Sour"
+    },
+    "cocktails": {
+        "mojito": "Mojito",
+        "martini": "Martini",
+        "margarita": "Margarita",
+        "old_fashioned": "Old Fashioned",
+        "daiquiri": "Daiquiri",
+        "cosmopolitan": "Cosmopolitan"
+    },
+    "search": {
+        "search": "Search",
+        "search_placeholder": "What do you want to drink?"
+    },
+    "drinkList": {
+        "based_on": "Based on the drink",
+        "rum_description": "Rum is sweet with toasted sugar flavors, notes of caramel, vanilla, and spices",
+        "gin_description": "Gin has juniper berry flavors with notes of herbs, citrus, and spices",
+        "whisky_description": "Whisky is smoky with notes of caramel, vanilla, and oak",
+        "vodka_description": "Vodka is clean with subtle sweetness and peppery notes",
+        "tequila_description": "Tequila has agave flavors with notes of citrus, spices, and herbs",
+        "brandy_description": "Brandy is fruity with notes of caramel, vanilla, and oak"
+    },
+    "myBar": {
+        "pageTitle": "My Bar",
+        "addNew": "Add New"
+    }
+}
