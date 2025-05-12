@@ -32,7 +32,7 @@
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/osake.git
+git clone https://github.com/Choppa7788/osake.git
 cd osake
 ````
 
