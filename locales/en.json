@@ -18,7 +18,22 @@
         "random": "Random",
         "language": "Language",
         "feedback": "Feedback",
-        "likedDrinks": "Liked Drinks"
+        "likedDrinks": "Liked Drinks",
+        "noDrinks": "No drinks found",
+        "oneDrink": "1 drink found",
+        "drinks":" drinks found"
+
+    },
+    "whatCanIMake": {
+        "whatCanIMake": "What can I make?",
+        "subtitle": "Find what you can make with the ingredients you have",
+        "sub1": "Select the ingredients you have",
+        "search_placeholder": "Search ingredients",
+        "yourIngredients": "Your Ingredients",
+        "all": "All ",
+        "drinksFound": "Drinks Found",
+        "allDrinksFound": "Drinks Found",
+        "drinks": "Drinks"
     },
     "tab": {
         "home": "Home",
@@ -38,11 +53,29 @@
         "Something_special": "Something special",
         "hard_drinks": "Hard drinks",
         "soft_drinks": "Soft drinks",
-        "something_casual": "Something casual",
-        "creamy_desserts": "Creamy desserts",
+        "something_casual": "Casual",
+        "creamy_desserts": "Creamy",
         "unique_taste": "Unique taste",
         "fruity": "Fruity"
     },
+    
+    "particularDrink":{
+        "serving":"Serving",
+        "ingredients":"Ingredients",
+        "instructions":"Instructions",
+        "notes":"Notes",
+        "notes_place_holder":"Add your notes here...",
+        "addFav":"Add to favorites",
+        "removeFav":"Remove from favorites",
+        "deleteDrink":"Delete drink",
+        "removeDrink":"Are you sure you want to delete this drink?",
+        "cancel":"Cancel",
+        "delete":"Delete",
+        "drinknotFound":"Drink not found",
+        "glass":"Glass",
+        "yourDrink":"Your drink"
+    },
+
     "mustDrink": {
         "must_drink": "Must drink at a bar",
         "must_drink3": "Mojito",
@@ -73,6 +106,59 @@
     },
     "myBar": {
         "pageTitle": "My Bar",
-        "addNew": "Add New"
+        "drinks": "Drink",
+        "addNew": "Add New",
+        "myDrinks": "My Drinks",
+        "noDrinks": "No drinks saved yet",
+        "addNew2": "Add a new drink",
+        "DrinkName": "Drink Name",
+        "category": "Category",
+        "ingredients": "Ingredients",
+        "ingredientName": "Ingredient Name",
+        "measure": "Measure",
+        "addIngredient": "Add Ingredient",
+        "Glassname": "Glass Name",
+        "Instructions": "Instructions",
+        "Steps": "Step",
+        "addnextStep": "Add Next Step",
+        "UploadImage": "Upload Image",
+        "Notes": "Notes",
+        "saveDrink": "Save Drink",
+        "ChooseOption":"Choose Option",
+        "takePhoto":"Take a Picture",
+        "chooseFromGallery":"Choose from Gallery",
+        "cancel":"Cancel",
+        "cameraPermission":"Sorry, we need camera permissions to make this work!",
+        "alert01":"Please enter a drink name",
+        "drinkSaved":"Drink saved successfully",
+        "drinkSavedError":"Error saving drink, Please try again"
+    },
+    "experimental": {
+        "experimental": "Experimental Cocktail",
+        "totalAlcohol": "Total Alcohol Percentage",
+        "TotalVolume": "Total Volume",
+        "AVI":"Alcohol by Volume",
+        "ingredients":"Ingredients",
+        "ingredientName":"Ingredient Name",
+        "Volume":"Volume",
+        "Alcohol":"Alcohol Percentage",
+        "addIngredient":"Add Ingredient"
+    },
+    "feedback": {
+        "feedback": "Feedback",
+        "feedback_placeholder": "Write your feedback here...",
+        "send_feedback": "Send Feedback",
+        "feedback_sent": "Feedback sent successfully",
+        "feedback_error": "Error sending feedback, Please try again"
+    },
+    "upgrade": {
+
+        "upgradeTitle": "Upgrade",
+        "upgrade": "Upgrade to Pro",
+        "upgrade_text": "Buy me a coffee to support the app and unlock all 400+ drinks with one time purchase of $5.",
+        "upgrade_button": "Upgrade Now",
+        "upgrade_success": "Upgrade successful",
+        "upgrede_prompt": "You have successfully purchased the Remove Ads feature!",
+        "upgrade_error": "Error upgrading, Please try again"
     }
 }

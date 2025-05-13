@@ -12,8 +12,8 @@ i18n
       en: { translation: en },
       ja: { translation: ja },
     },
-    lng: Localization.locale.startsWith('ja') ? 'ja' : 'en',  // Detect system language
-    fallbackLng: 'en',
+    lng: Localization.locale.startsWith('ja') ? 'ja' : 'en',  // Set to Japanese if the locale starts with 'ja', otherwise English
+    fallbackLng: 'en',  // Default to English if language detection fails
     interpolation: {
       escapeValue: false,
     },

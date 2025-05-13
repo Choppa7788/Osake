@@ -19,8 +19,27 @@
         "language":"言語",
         "feedback":"フィードバック",
         "likedDrinks":"お気に入りのドリンク"
+        ,"noDrinks":"ドリンクが見つかりません",
+        "oneDrink":"品のドリンクが見つかりました",
+        "drinks":"品のドリンクが見つかりました"
     },
-    
+    "particularDrink": {
+        "serving": "提供",
+        "ingredients": "材料",
+        "instructions": "手順",
+        "notes": "メモ",
+        "notes_place_holder": "ここにメモを追加...",
+        "addFav": "お気に入りに追加",
+        "removeFav": "お気に入りから削除",
+        "deleteDrink": "ドリンクを削除",
+        "removeDrink": "このドリンクを削除してもよろしいですか？",
+        "cancel": "キャンセル",
+        "delete": "削除",
+        "drinknotFound": "ドリンクが見つかりません",
+        "glass": "グラス",
+        "category":"カテゴリー",
+        "drinkName":"あなたのドリンク"
+    },
     "tab":
     {  "home":"ホーム",
         "library":"ライブラリ",
@@ -35,12 +54,24 @@
         "tequila": "テキーラ",
         "brandy": "ブランデー"
     },
+    "whatCanIMake":
+    {
+        "whatCanIMake":"自分は何が作れるか？",
+        "subtitle":"持っている材料で作れるものを調べる",
+        "sub1":"持っている材料を選択してください",
+        "search_placeholder":"材料を検索",
+        "yourIngredients":"あなたの材料 :",
+        "all":"すべての",
+        "drinksFound":"品を見つ毛ました",
+        "allDrinksFound":"品のドリンクです",
+        "drinks":"ドリンク"
+    },
     "somethingCasual": {
         "Something_special": "特別なもの",
         "hard_drinks": "ハードドリンク",
         "soft_drinks": "ソフトドリンク",
-        "something_casual": "カジュアルなもの",
-        "creamy_desserts": "クリーミーなデザート",
+        "something_casual": "カジュアル",
+        "creamy_desserts": "クリーミー",
         "unique_taste": "ユニークな味",
         "fruity": "フルーティー"
       },
@@ -72,8 +103,61 @@
         "tequila_description": "テキーラはアガベの風味があり、シトラス、スパイス、ハーブのノートがあります",
         "brandy_description": "ブランデーはフルーティーで、キャラメル、バニラ、オークのノートがあります"
     },
-  "myBar":{
-    "pageTitle":"マイバー",
-    "addNew":"新しいものを追加"
-  }
+    "myBar": {
+        "pageTitle": "マイバー",
+        "drinks": "ドリンク",
+        "addNew": "新規追加",
+        "myDrinks": "私のドリンク",
+        "noDrinks": "保存されたドリンクはまだありません",
+        "addNew2": "新しいドリンクを追加",
+        "drinkName": "ドリンク名",
+        "category": "カテゴリー",
+        "ingredients": "材料",
+        "ingredientName": "材料名",
+        "measure": "計量",
+        "addIngredient": "材料を追加",
+        "Glassname": "グラス名",
+        "Instructions": "手順",
+        "Steps": "ステップ",
+        "addnextStep": "次のステップを追加",
+        "UploadImage": "画像をアップロード",
+        "Notes": "メモ",
+        "saveDrink": "ドリンクを保存",
+        "ChooseOption": "オプションを選択",
+        "takePhoto": "写真を撮る",
+        "chooseFromGallery": "ギャラリーから選択",
+        "cancel": "キャンセル",
+        "cameraPermission": "申し訳ありませんが、これを機能させるにはカメラの許可が必要です！",
+        "alert01": "ドリンク名を入力してください",
+        "drinkSaved": "ドリンクが正常に保存されました!",
+        "drinkSavedError": "ドリンクの保存中にエラーが発生しました。もう一度お試しください"
+    },
+    "experimental": {
+        "experimental": "実験的なカクテル",
+        "totalAlcohol": "総アルコール度数",
+        "TotalVolume": "総量",
+        "AVI": "アルコール度数",
+        "ingredients": "材料",
+        "ingredientName": "材料名",
+        "Volume": "量",
+        
+        "Alcohol": "アルコール度数",
+        "addIngredient": "材料を追加"
+    },
+    "feedback": {
+        "feedback": "フィードバック",
+        "feedback_placeholder": "ここにフィードバックを書いてください...",
+        "send_feedback": "フィードバックを送信",
+        "feedback_sent": "フィードバックが正常に送信されました",
+        "feedback_error": "フィードバックの送信中にエラーが発生しました。もう一度お試しください"
+    },
+    "upgrade": {
+        "upgradeTitle": "アップグレード",
+        "upgrade": "プロ版にアップグレード",
+        "upgrade_text": "アプリをサポートし、すべての400品以上のドリンクを解除するために一度だけ750円を購入してください。",
+        "upgrade_button": "今すぐアップグレード",
+        "upgrade_success": "アップグレードが成功しました",
+        "upgrede_prompt": "広告削除機能を正常に購入しました！",
+        "upgrade_error": "アップグレード中にエラーが発生しました。もう一度お試しください"
+    }
 }

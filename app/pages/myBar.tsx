@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useLayoutEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, useColorScheme } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { getSavedDrinks } from '../services/database'; // Import the database function
 import "../../i18n";
 import { useNavigation } from '@react-navigation/native';
 import { HeaderBackButton } from '@react-navigation/elements';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function MyBar() {
     const navigation = useNavigation();
@@ -13,12 +14,14 @@ export default function MyBar() {
     const router = useRouter();
     const [savedDrinks, setSavedDrinks] = useState<{ name: string, image: string, ingredients: any[], glass: string, instructions: any[], category: string, notes: string }[]>([]);
 
+    
     useLayoutEffect(() => {
         navigation.setOptions({
             headerLeft: () => (
-                <HeaderBackButton onPress={() => navigation.goBack()} />
+                <Ionicons name="arrow-back" size={24} color={isDarkMode ? "white" : "black"} onPress={() => navigation.goBack()} />
+                
             ),
-            title: 'My Bar',
+            title: t("myBar.pageTitle"),
         });
     }, [navigation]);
 
@@ -40,19 +43,32 @@ export default function MyBar() {
         });
     };
 
+
+     const colorScheme = useColorScheme(); // Get the current color scheme
+          const isDarkMode = colorScheme === 'dark'; // Check if dark mode is enabled
+        
+          const backgroundColor = isDarkMode ? '#121212' : '#ffffff'; // Set background color
+          const textColor = isDarkMode ? '#ffffff' : '#000000'; // Set text color
+          const boxColor = isDarkMode ? '#4d4f4e' : '#deebc7'; // Set box color
+          const boxColor1 = isDarkMode ? '#121212' : '#deebc7'; // Set box color
+          const boxColor2 = isDarkMode ? '#403b35' : '#deebc7'; // Set box color popular base background
+          const boxColor3 = isDarkMode ? '#403b35' : '#42db7a'; // Set box color
+          const headerBackgroundColor = isDarkMode ? '#403b35' : '#42db7a'; // Brown for dark, green for light
+        
+    
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <TouchableOpacity style={styles.addButton} onPress={() => router.push('./addDrink')}>
-                <Text style={styles.addButtonText}>{t("mybar.addNew")}</Text>
+                <Text style={styles.addButtonText}>{t("myBar.addNew")}</Text>
             </TouchableOpacity>
-            <Text style={styles.title}>My Drinks</Text>
+            <Text style={styles.title}>{t("myBar.myDrinks")}</Text>
 
             {savedDrinks.length === 0 ? (
-                <Text style={styles.noDrinksText}>No drinks saved yet.</Text>
+                <Text style={styles.noDrinksText}>{t("myBar.noDrinks")}</Text>
             ) : (
                 savedDrinks.map((drink, index) => (
-                    <TouchableOpacity key={index} style={styles.drinkCard} onPress={() => handleDrinkPress(drink)}>
-                        <Text style={styles.drinkName}>{drink.name}</Text>
+                    <TouchableOpacity key={index} style={[styles.drinkCard,{backgroundColor}]} onPress={() => handleDrinkPress(drink)}>
+                        <Text style={[styles.drinkName,{color:textColor}]}>{drink.name}</Text>
                         {drink.image ? (
                             <Image source={{ uri: drink.image }} style={styles.drinkImage} />
                         ) : (

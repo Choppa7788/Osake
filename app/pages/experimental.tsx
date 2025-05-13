@@ -4,12 +4,14 @@ import Slider from '@react-native-community/slider';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { HeaderBackButton, HeaderShownContext } from '@react-navigation/elements';
+import { useTranslation } from 'react-i18next';
 
 const MAX_INGREDIENTS = 15;
 const INITIAL_VOLUME = 200;
 
 const ExperimentalPage: React.FC = () => {
     const [ingredients, setIngredients] = useState([{ name: '', volume: 0, alcoholPercentage: 0 }]);
+    const { t, i18n } = useTranslation();
     const navigation = useNavigation();
 
          useLayoutEffect(() => {
@@ -56,75 +58,83 @@ const ExperimentalPage: React.FC = () => {
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <HeaderBackButton style={styles.backButton} onPress={() => navigation.goBack()} />
-                <Text style={styles.header}>Experimental Cocktail</Text>
-            <View style={styles.summary}>
-                <View style={styles.summaryRow}>
-                    <Text style={styles.summaryLabel}>Total Alcohol Percentage:</Text>
-                    <Text style={styles.summaryValue}>{totalAlcoholPercentage.toFixed(2)}%</Text>
+        <View style={{ flex: 1, backgroundColor: 'black' }}>
+            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                <Ionicons name="arrow-back" size={24} color="white" />
+            </TouchableOpacity>
+            <ScrollView contentContainerStyle={styles.container}>
+                <Text style={styles.header}>{t("experimental.experimental")}</Text>
+                <View style={styles.summary}>
+                    <View style={styles.summaryRow}>
+                        <Text style={styles.summaryLabel}>{t("experimental.totalAlcohol")}:</Text>
+                        <Text style={styles.summaryValue}>{totalAlcoholPercentage.toFixed(2)}%</Text>
+                    </View>
+                    <View style={styles.summaryRow}>
+                        <Text style={styles.summaryLabel}>{t("experimental.TotalVolume")}:</Text>
+                        <Text style={styles.summaryValue}>{totalVolume.toFixed(2)} ml</Text>
+                    </View>
+                    <View style={styles.summaryRow}>
+                        <Text style={styles.summaryLabel}>{t("experimental.AVI")}:</Text>
+                        <Text style={styles.summaryValue}>{totalAlcoholVolume.toFixed(2)} ml</Text>
+                    </View>
                 </View>
-                <View style={styles.summaryRow}>
-                    <Text style={styles.summaryLabel}>Total Volume:</Text>
-                    <Text style={styles.summaryValue}>{totalVolume.toFixed(2)} ml</Text>
+                <View style={styles.barContainer}>
+                    <View style={[styles.volumeBar, { width: `${(totalVolume / maxVolume) * 100}%` }]}>
+                        <View style={[styles.alcoholBar, { width: `${totalAlcoholPercentage}%`, backgroundColor: getAlcoholColor(totalAlcoholPercentage) }]} />
+                    </View>
                 </View>
-                <View style={styles.summaryRow}>
-                    <Text style={styles.summaryLabel}>Alcohol Volume Index:</Text>
-                    <Text style={styles.summaryValue}>{totalAlcoholVolume.toFixed(2)} ml</Text>
-                </View>
-            </View>
-            <View style={styles.barContainer}>
-                <View style={[styles.volumeBar, { width: `${(totalVolume / maxVolume) * 100}%` }]}>
-                    <View style={[styles.alcoholBar, { width: `${totalAlcoholPercentage}%`, backgroundColor: getAlcoholColor(totalAlcoholPercentage) }]} />
-                </View>
-            </View>
-            <Text style={styles.subtitle}>Ingredients:</Text>
-            {ingredients.map((ingredient, index) => (
-                <View key={index} style={styles.ingredient}>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Ingredient Name"
-                        value={ingredient.name}
-                        onChangeText={(value) => handleNameChange(index, value)}
-                    />
-                    <Text style={styles.ingredientLabel}>Volume: {ingredient.volume} ml</Text>
-                    <Slider
-                        style={styles.slider}
-                        minimumValue={0}
-                        maximumValue={200}
-                        step={1}
-                        value={ingredient.volume}
-                        onValueChange={(value) => handleVolumeChange(index, value)}
-                    />
-                    <Text style={styles.ingredientLabel}>Alcohol Percentage: {ingredient.alcoholPercentage}%</Text>
-                    <Slider
-                        style={styles.slider}
-                        minimumValue={0}
-                        maximumValue={100}
-                        step={1}
-                        value={ingredient.alcoholPercentage}
-                        onValueChange={(value) => handleAlcoholPercentageChange(index, value)}
-                    />
-                </View>
-            ))}
-            {ingredients.length < MAX_INGREDIENTS && (
-                <TouchableOpacity style={styles.addButton} onPress={addIngredient}>
-                    <Text style={styles.addButtonText}>+ Add Ingredient</Text>
-                </TouchableOpacity>
-            )}
-        </ScrollView>
+                <Text style={styles.subtitle}>{t("experimental.ingredients")}:</Text>
+                {ingredients.map((ingredient, index) => (
+                    <View key={index} style={styles.ingredient}>
+                        <TextInput
+                            style={styles.input}
+                            placeholder={t("experimental.ingredientName")}
+                            value={ingredient.name}
+                            onChangeText={(value) => handleNameChange(index, value)}
+                        />
+                        <Text style={styles.ingredientLabel}>{t("experimental.Volume")}: {ingredient.volume} ml</Text>
+                        <Slider
+                            style={styles.slider}
+                            minimumValue={0}
+                            maximumValue={200}
+                            step={1}
+                            value={ingredient.volume}
+                            onValueChange={(value) => handleVolumeChange(index, value)}
+                        />
+                        <Text style={styles.ingredientLabel}>{t("experimental.Alcohol")}: {ingredient.alcoholPercentage}%</Text>
+                        <Slider
+                            style={styles.slider}
+                            minimumValue={0}
+                            maximumValue={100}
+                            step={1}
+                            value={ingredient.alcoholPercentage}
+                            onValueChange={(value) => handleAlcoholPercentageChange(index, value)}
+                        />
+                    </View>
+                ))}
+                {ingredients.length < MAX_INGREDIENTS && (
+                    <TouchableOpacity style={styles.addButton} onPress={addIngredient}>
+                        <Text style={styles.addButtonText}>+ {t("experimental.addIngredient")}</Text>
+                    </TouchableOpacity>
+                )}
+            </ScrollView>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         padding: 16,
-        paddingTop: 50, // Add padding to the top to shift the content down
-        backgroundColor: '#121212',
+        paddingTop: 100, // Add padding to the top to shift the content down
+        backgroundColor: 'black',
     },
     backButton: {
-        marginBottom: 16,
-        marginLeft: -8,
+        position: 'absolute', // Make the button scroll-immune
+        top: 50,
+        left: 16,
+        zIndex: 10, // Ensure it stays above other elements
+        padding: 8,
+        borderRadius: 8,
     },
     header: {
         fontSize: 32,

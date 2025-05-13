@@ -1,13 +1,18 @@
 import React, { useState, useLayoutEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView, TouchableOpacity, Image, Platform, Alert, Dimensions } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, ScrollView, TouchableOpacity, Image, Platform, Alert, Dimensions, useColorScheme, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { HeaderBackButton } from '@react-navigation/elements';
 import * as ImagePicker from 'expo-image-picker';
 import { saveDrinkToDatabase } from '../services/database'; // Assume this is a function to save the drink to your database
-
+import "../../i18n";
+import { useTranslation } from 'react-i18next';
+import { Ionicons } from '@expo/vector-icons';
 const screenWidth = Dimensions.get('window').width;
 
 export default function AddDrink() {
+
+
+    const { t } = useTranslation();
     const navigation = useNavigation();
     const [drinkName, setDrinkName] = useState('');
     const [ingredients, setIngredients] = useState([{ id: 1, name: '', measure: '' }]);
@@ -17,12 +22,28 @@ export default function AddDrink() {
     const [notes, setNotes] = useState('');
     const [image, setImage] = useState<string | null>(null);
 
+
+
+      const colorScheme = useColorScheme(); // Get the current color scheme
+      const isDarkMode = colorScheme === 'dark'; // Check if dark mode is enabled
+    
+      const backgroundColor = isDarkMode ? '#121212' : '#ffffff'; // Set background color
+      const textColor = isDarkMode ? '#ffffff' : '#000000'; // Set text color
+      const boxColor = isDarkMode ? '#4d4f4e' : '#deebc7'; // Set box color
+      const boxColor1 = isDarkMode ? '#121212' : '#deebc7'; // Set box color
+      const boxColor2 = isDarkMode ? '#403b35' : '#deebc7'; // Set box color popular base background
+      const boxColor3 = isDarkMode ? '#403b35' : '#42db7a'; // Set box color
+      const headerBackgroundColor = isDarkMode ? '#403b35' : '#42db7a'; // Brown for dark, green for light
+    
+
+
+      
     useLayoutEffect(() => {
         navigation.setOptions({
             headerLeft: () => (
-                <HeaderBackButton onPress={() => navigation.goBack()} />
+                <Ionicons  name="arrow-back" size={24} color={isDarkMode ? "white" : "black"} onPress={() => navigation.goBack()} />
             ),
-            title: 'Drink',
+            title: t("myBar.drinks"),
         });
     }, [navigation]);
 
@@ -66,7 +87,7 @@ export default function AddDrink() {
     const takePhoto = async () => {
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status !== 'granted') {
-            alert('Sorry, we need camera permissions to make this work!');
+            alert(t("myBar.cameraPermission"));
             return;
         }
 
@@ -83,12 +104,12 @@ export default function AddDrink() {
 
     const uploadImage = () => {
         Alert.alert(
-            "Upload a Picture",
-            "Choose an option",
+            t("myBar.UploadImage"),
+            t("myBar.ChooseOption"),
             [
-                { text: "Take a Picture", onPress: takePhoto },
-                { text: "Choose from Library", onPress: pickImage },
-                { text: "Cancel", style: "cancel" }
+                { text: t("myBar.takePhoto"), onPress: takePhoto },
+                { text: t("myBar.chooseFromGallery"), onPress: pickImage },
+                { text: t("myBar.cancel"), style: "cancel" }
             ],
             { cancelable: true }
         );
@@ -96,7 +117,7 @@ export default function AddDrink() {
 
     const saveDrink = () => {
         if (!drinkName.trim()) {
-            alert('Please enter a drink name.');
+            alert(t("myBar.alert01"));
             return;
         }
 
@@ -112,86 +133,93 @@ export default function AddDrink() {
 
         saveDrinkToDatabase(newDrink)
             .then(() => {
-                alert('Drink saved successfully!');
+                alert(t("myBar.drinkSaved"));
                 navigation.goBack();
             })
             .catch((error) => {
-                alert('Failed to save drink. Please try again.');
+                alert(t("myBar.drinkSavedError"));
                 console.error(error);
             });
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <Text style={styles.title}>Add a New Drink</Text>
-            <TextInput
-                style={styles.drinkNameInput}
-                placeholder="Drink Name"
-                placeholderTextColor="#ccc"
-                value={drinkName}
-                onChangeText={setDrinkName}
-            />
-            <TextInput
-                style={styles.categoryInput}
-                placeholder="Category"
-                placeholderTextColor="#ccc"
-                value={category}
-                onChangeText={setCategory}
-            />
-            <Text style={styles.subtitle}>Ingredients:</Text>
-            {ingredients.map((ingredient, index) => (
-                <View key={index} style={styles.ingredientRow}>
+        <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <ScrollView contentContainerStyle={[styles.container, { backgroundColor }]}>
+                    <Text style={[styles.title, { color: textColor }]}>{t("myBar.addNew2")}</Text>
                     <TextInput
-                        style={styles.ingredientInput}
-                        placeholder="Ingredient Name"
+                        style={[styles.drinkNameInput, { color: textColor, backgroundColor: boxColor }]}
+                        placeholder={t("myBar.DrinkName")}
                         placeholderTextColor="#ccc"
-                        value={ingredient.name}
-                        onChangeText={(text) => handleIngredientChange(ingredient.id, 'name', text)}
+                        value={drinkName}
+                        onChangeText={setDrinkName}
                     />
                     <TextInput
-                        style={styles.input}
-                        placeholder="Measure"
+                        style={[styles.categoryInput, { color: textColor, backgroundColor: boxColor }]}
+                        placeholder={t("myBar.category")}
                         placeholderTextColor="#ccc"
-                        value={ingredient.measure}
-                        onChangeText={(text) => handleIngredientChange(ingredient.id, 'measure', text)}
+                        value={category}
+                        onChangeText={setCategory}
                     />
-                </View>
-            ))}
-            <Button title="Add Ingredient" onPress={addIngredient} />
-            <TextInput
-                style={styles.input}
-                placeholder="Glass Name"
-                placeholderTextColor="#ccc"
-                value={glassName}
-                onChangeText={setGlassName}
-            />
-            <Text style={styles.subtitle}>Instructions:</Text>
-            {instructions.map((instruction, index) => (
-                <TextInput
-                    key={index}
-                    style={styles.input}
-                    placeholder={`Step ${index + 1}`}
-                    placeholderTextColor="#ccc"
-                    value={instruction.step}
-                    onChangeText={(text) => handleInstructionChange(instruction.id, text)}
-                />
-            ))}
-            <Button title="Add Next Step" onPress={addInstruction} />
-            <View style={styles.imageContainer}>
-                {image && <Image source={{ uri: image }} style={styles.image} />}
-                <Button title="Upload a Picture" onPress={uploadImage} />
-            </View>
-            <TextInput
-                style={styles.input}
-                placeholder="Notes"
-                placeholderTextColor="#ccc"
-                value={notes}
-                onChangeText={setNotes}
-            />
-            <TouchableOpacity style={styles.saveButton} onPress={saveDrink}>
-                <Text style={styles.saveButtonText}>Save Drink</Text>
-            </TouchableOpacity>
-        </ScrollView>
+                    <Text style={[styles.subtitle, { color: textColor }]}>{t("myBar.ingredients")}:</Text>
+                    {ingredients.map((ingredient, index) => (
+                        <View key={index} style={styles.ingredientRow}>
+                            <TextInput
+                                style={[styles.ingredientInput, { color: textColor, backgroundColor: boxColor }]}
+                                placeholder={`${t("myBar.ingredients")} ${index + 1}`}
+                                placeholderTextColor="#ccc"
+                                value={ingredient.name}
+                                onChangeText={(text) => handleIngredientChange(ingredient.id, 'name', text)}
+                            />
+                            <TextInput
+                                style={[styles.input, { color: textColor, backgroundColor: boxColor }]}
+                                placeholder={t("myBar.measure")}
+                                placeholderTextColor="#ccc"
+                                value={ingredient.measure}
+                                onChangeText={(text) => handleIngredientChange(ingredient.id, 'measure', text)}
+                            />
+                        </View>
+                    ))}
+                    <Button title={t("myBar.addIngredient")} onPress={addIngredient} />
+                    <TextInput
+                        style={[styles.input, { color: textColor, backgroundColor: boxColor }]}
+                        placeholder={t("myBar.Glassname")}
+                        placeholderTextColor="#ccc"
+                        value={glassName}
+                        onChangeText={setGlassName}
+                    />
+                    <Text style={[styles.subtitle, { color: textColor }]}>{t("myBar.Instructions")}:</Text>
+                    {instructions.map((instruction, index) => (
+                        <TextInput
+                            key={index}
+                            style={[styles.input, { color: textColor, backgroundColor: boxColor }]}
+                            placeholder={`${t("myBar.Steps")} ${index + 1}`}
+                            placeholderTextColor="#ccc"
+                            value={instruction.step}
+                            onChangeText={(text) => handleInstructionChange(instruction.id, text)}
+                        />
+                    ))}
+                    <Button title={t("myBar.addnextStep")} onPress={addInstruction} />
+                    <View style={styles.imageContainer}>
+                        {image && <Image source={{ uri: image }} style={styles.image} />}
+                        <Button title={t("myBar.UploadImage")} onPress={uploadImage} />
+                    </View>
+                    <TextInput
+                        style={[styles.input, { color: textColor, backgroundColor: boxColor }]}
+                        placeholder={t("myBar.Notes")}
+                        placeholderTextColor="#ccc"
+                        value={notes}
+                        onChangeText={setNotes}
+                    />
+                    <TouchableOpacity style={styles.saveButton} onPress={saveDrink}>
+                        <Text style={styles.saveButtonText}>{t("myBar.saveDrink")}</Text>
+                    </TouchableOpacity>
+                </ScrollView>
+            </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
     );
 }
 

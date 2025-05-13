@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, ActivityIndicator, ScrollView, TextInput, KeyboardAvoidingView, Platform, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, Image, StyleSheet, ActivityIndicator, ScrollView, TextInput, KeyboardAvoidingView, Platform, TouchableOpacity, Alert, useColorScheme } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { deleteDrinkFromDatabase, getSavedDrinks, updateDrinkNotesInDatabase } from '../services/database'; // Import the delete, update, and get functions
+import { useTranslation } from 'react-i18next';
 
 type Drink = {
     name: string;
@@ -22,16 +23,29 @@ export default function MyParticularDrinkScreen() {
     const [notes, setNotes] = useState('');
     const navigation = useNavigation();
 
+        const { t } = useTranslation();
+
+    const colorScheme = useColorScheme(); // Move this inside the component
+    const isDarkMode = colorScheme === 'dark'; // Check if dark mode is enabled
+
+    const backgroundColor = isDarkMode ? '#121212' : '#ffffff'; // Set background color
+    const textColor = isDarkMode ? '#ffffff' : '#000000'; // Set text color
+    const boxColor = isDarkMode ? '#4d4f4e' : '#deebc7'; // Set box color
+    const boxColor1 = isDarkMode ? '#121212' : '#deebc7'; // Set box color
+    const boxColor2 = isDarkMode ? '#403b35' : '#deebc7'; // Set box color popular base background
+    const boxColor3 = isDarkMode ? '#403b35' : '#42db7a'; // Set box color
+    const headerBackgroundColor = isDarkMode ? '#403b35' : '#42db7a'; // Brown for dark, green for light
+    const arrowColor = isDarkMode ? '#ffffff' : '#000000'; // Arrow color
     useEffect(() => {
         if (drink) {
             const parsedDrink = JSON.parse(drink as string);
             setDrinkData(parsedDrink);
             setNotes(parsedDrink.notes);
             navigation.setOptions({
-                title: parsedDrink.name,
+                title:t("particularDrink.drinkName"),
                 headerLeft: () => (
                     <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <Ionicons name="arrow-back" size={24} color="white" />
+                        <Ionicons name="arrow-back" size={24} color={arrowColor} />
                     </TouchableOpacity>
                 ),
             });
@@ -61,11 +75,11 @@ export default function MyParticularDrinkScreen() {
 
     const handleDeleteDrink = () => {
         Alert.alert(
-            "Delete Drink",
-            "Are you sure you want to delete this drink?",
+            t("particularDrink.deleteDrink"),
+            t("particularDrink.removeDrink"),
             [
-                { text: "Cancel", style: "cancel" },
-                { text: "Delete", onPress: async () => {
+                { text: t("particularDrink.cancel"), style: "cancel" },
+                { text: t("particularDrink.delete"), onPress: async () => {
                     if (drinkData) {
                         await deleteDrinkFromDatabase(drinkData.name);
                         navigation.goBack();
@@ -87,7 +101,7 @@ export default function MyParticularDrinkScreen() {
     if (!drinkData) {
         return (
             <View style={styles.container}>
-                <Text style={styles.title}>Drink not found</Text>
+                <Text style={styles.title}>t("particularDrink.drinknotFound")</Text>
             </View>
         );
     }
@@ -97,36 +111,37 @@ export default function MyParticularDrinkScreen() {
             style={{ flex: 1 }}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-            <ScrollView style={styles.container}>
-                <Text style={styles.title}>{drinkData.name}</Text>
+            <ScrollView style={[styles.container, { backgroundColor }]}>
+                <Text style={[styles.title, { color: textColor }]}>{drinkData.name}</Text>
                 {drinkData.image && <Image source={{ uri: drinkData.image }} style={styles.image} />}
-                <Text style={styles.subtitle}>Ingredients:</Text>
-                <View style={styles.ingredientsBox}>
+                <Text style={[styles.subtitle, { color: textColor }]}>{t("particularDrink.ingredients")}:</Text>
+                <View style={[styles.ingredientsBox, { backgroundColor: boxColor }]}>
                     {drinkData.ingredients.map((item, index) => (
                         <View key={index} style={styles.ingredientRow}>
-                            <Text style={styles.ingredientName}>{item.name}</Text>
-                            <Text style={styles.ingredientMeasure}>{item.measure}</Text>
+                            <Text style={[styles.ingredientName, { color: textColor }]}>{item.name}</Text>
+                            <Text style={[styles.ingredientMeasure, { color: textColor }]}>{item.measure}</Text>
                         </View>
                     ))}
                 </View>
-                <Text style={styles.subtitle}>Glass:</Text>
-                <Text style={styles.glass}>{drinkData.glass}</Text>
-                <Text style={styles.subtitle}>Instructions:</Text>
-                <View style={styles.instructionsBox}>
+                <Text style={[styles.subtitle, { color: textColor }]}>{t("particularDrink.glass")}</Text>
+                <Text style={[styles.glass, { color: textColor }]}>{drinkData.glass}</Text>
+                <Text style={[styles.subtitle, { color: textColor }]}>{t("particularDrink.instructions")}:</Text>
+                <View style={[styles.instructionsBox, { backgroundColor: boxColor }]}>
                     {drinkData.instructions.map((instruction, index) => (
-                        <Text key={index} style={styles.instructions}>{instruction.step}</Text>
+                        <Text key={index} style={[styles.instructions, { color: textColor }]}>{instruction.step}</Text>
                     ))}
                 </View>
-                <Text style={styles.subtitle}>Category:</Text>
-                <Text style={styles.category}>{drinkData.category}</Text>
-                <Text style={styles.subtitle}>Notes:</Text>
+                <Text style={[styles.subtitle, { color: textColor }]}>{t("particularDrink.category")}:</Text>
+                <Text style={[styles.category, { color: textColor }]}>{drinkData.category}</Text>
+                <Text style={[styles.subtitle, { color: textColor }]}>{t("particularDrink.notes")}:</Text>
                 <TextInput
-                    style={styles.notesInput}
+                    style={[styles.notesInput, { color: textColor, backgroundColor: boxColor }]}
                     multiline
                     numberOfLines={4}
                     value={notes}
                     onChangeText={handleSaveNotes}
-                    placeholder="Add your notes here..."
+                    placeholder={t("particularDrink.notes_place_holder")}
+                    placeholderTextColor={isDarkMode ? "#ccc" : "#555"}
                 />
                 <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteDrink}>
                     <Text style={styles.deleteButtonText}>Delete Drink</Text>
@@ -194,6 +209,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         padding: 16,
         backgroundColor: '#f9f9f9',
+        marginBottom: 16,
     },
     instructions: {
         fontSize: 16,
@@ -215,11 +231,12 @@ const styles = StyleSheet.create({
         textAlignVertical: 'top',
     },
     deleteButton: {
-        marginTop: 16,
+        marginTop: 50,
         backgroundColor: 'red',
         padding: 16,
         borderRadius: 8,
         alignItems: 'center',
+        marginBottom: 50,
     },
     deleteButtonText: {
         color: '#fff',
@@ -227,3 +244,5 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 });
+
+

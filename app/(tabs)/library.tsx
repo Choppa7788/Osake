@@ -1,12 +1,28 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, useColorScheme } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import "../../i18n";
 import imagePath from '../../assets/database/imagePath.json';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
+import { useState, useEffect } from 'react'; // Import useState and useEffect
 
 export default function LibraryScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
+  const [hasPremiumAccess, setHasPremiumAccess] = useState(false); // State to track premium access
+
+  useEffect(() => {
+    const fetchPremiumAccess = async () => {
+      try {
+        const premiumAccess = await AsyncStorage.getItem('hasPremiumAccess');
+        setHasPremiumAccess(premiumAccess === 'true'); // Set state based on stored value
+      } catch (error) {
+        console.error('Error fetching premium access:', error);
+      }
+    };
+
+    fetchPremiumAccess();
+  }, []);
 
   const items = [
     {
@@ -47,6 +63,26 @@ export default function LibraryScreen() {
     },
   ];
 
+  // Append the upgrade button if the user does not have premium access
+  if (!hasPremiumAccess) {
+    items.push({
+      key: 'upgrade',
+      text: t('upgrade.upgradeTitle'),
+      link: '../pages/upgrade',
+      icon: require('../../assets/icons/upgrade.jpg'),
+    });
+  }
+
+  const colorScheme = useColorScheme(); // Get the current color scheme
+  const isDarkMode = colorScheme === 'dark'; // Check if dark mode is enabled
+
+  const backgroundColor = isDarkMode ? '#121212' : '#deebc7'; // Set background color
+  const textColor = isDarkMode ? '#ffffff' : '#000000'; // Set text color
+  const boxColor = isDarkMode ? '#121212' : '#deebc7'; // Set box color
+  const boxColor1 = isDarkMode ? '#121212' : '#deebc7'; // Set box color
+  const boxColor2 = isDarkMode ? '#403b35' : '#f5ea73'; // Set box color popular base background
+  const boxColor3 = isDarkMode ? '#403b35' : '#42db7a'; // Set box color
+
   const handleRandomDrinkPress = () => {
     const randomIndex = Math.floor(Math.random() * imagePath.length);
     const randomDrinkId = imagePath[randomIndex];
@@ -55,12 +91,34 @@ export default function LibraryScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.header}>{t("headers.yourLibrary")}</Text>
-      {items.map((item) => (
-        item.link ? (
-          <Link href={item.link as any} asChild key={item.key}>
-            <TouchableOpacity style={styles.item}>
+    <View style={[styles.outerContainer, { backgroundColor }]}>
+      {/* Header Container */}
+      <View style={[styles.headerContainer, { backgroundColor: boxColor3 }]}>
+        <Text style={[styles.header, { color: textColor }]}>{t("headers.yourLibrary")}</Text>
+      </View>
+
+      {/* Scrollable Content */}
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {items.map((item) => (
+          item.link ? (
+            <Link href={item.link as any} asChild key={item.key}>
+              <TouchableOpacity style={styles.item}>
+                {item.icon ? (
+                  <Image source={item.icon} style={styles.icon} />
+                ) : (
+                  <View style={styles.placeholderIcon}>
+                    <Text style={styles.placeholderText}>{item.placeholder}</Text>
+                  </View>
+                )}
+                <Text style={[styles.itemText,{color:textColor}]}>{item.text}</Text>
+              </TouchableOpacity>
+            </Link>
+          ) : (
+            <TouchableOpacity
+              style={[styles.item,{backgroundColor: boxColor1}]}
+              key={item.key}
+              onPress={item.key === 'randomDrink' ? handleRandomDrinkPress : undefined}
+            >
               {item.icon ? (
                 <Image source={item.icon} style={styles.icon} />
               ) : (
@@ -68,42 +126,33 @@ export default function LibraryScreen() {
                   <Text style={styles.placeholderText}>{item.placeholder}</Text>
                 </View>
               )}
-              <Text style={styles.itemText}>{item.text}</Text>
+              <Text style={[styles.itemText,{color:textColor}]}>{item.text}</Text>
             </TouchableOpacity>
-          </Link>
-        ) : (
-          <TouchableOpacity
-            style={styles.item}
-            key={item.key}
-            onPress={item.key === 'randomDrink' ? handleRandomDrinkPress : undefined}
-          >
-            {item.icon ? (
-              <Image source={item.icon} style={styles.icon} />
-            ) : (
-              <View style={styles.placeholderIcon}>
-                <Text style={styles.placeholderText}>{item.placeholder}</Text>
-              </View>
-            )}
-            <Text style={styles.itemText}>{item.text}</Text>
-          </TouchableOpacity>
-        )
-      ))}
-    </ScrollView>
+          )
+        ))}
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    padding: 20,
-    backgroundColor: '#000',
+  outerContainer: {
+    flex: 1,
   },
+  headerContainer: {
+      paddingTop: 50,
+      paddingBottom: 10,
+      paddingHorizontal: 16,
+      backgroundColor: '#121212', // Adjust based on color scheme
+    },
   header: {
-    marginTop: 35,
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
     color: '#fff',
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    padding: 20,
   },
   item: {
     flexDirection: 'row',

@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useLayoutEffect } from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, ActivityIndicator, Dimensions, TouchableOpacity } from 'react-native';
+import { View, Text, Image, ScrollView, StyleSheet, ActivityIndicator, Dimensions, TouchableOpacity, ImageBackground, useColorScheme } from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { useLocalSearchParams, Link } from 'expo-router';
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import cocktails from '../../assets/database/cocktails.json';
 import { getImage } from './imagepath';
 import { addFavourite, removeFavourite, isFavourite, getFavoriteDrinks } from '../../assets/database/favouritesStorage';
@@ -21,74 +21,80 @@ export default function DrinkListScreen() {
     const [isFavorite, setIsFavorite] = useState(false);
     const [favorites, setFavorites] = useState<string[]>([]);
 
+    const colorScheme = useColorScheme(); // Get the current color scheme
+    const isDarkMode = colorScheme === 'dark'; // Check if dark mode is enabled
+    useLayoutEffect(() => {
+        navigation.setOptions({
+         headerShown:false,
+        });
+    }, [navigation, base]);
+
+    const backgroundColor = isDarkMode ? '#121212' : '#ffffff'; // Set background color
+    const textColor = isDarkMode ? '#ffffff' : '#000000'; // Set text color
+    const boxColor = isDarkMode ? '#121212' : '#deebc7'; // Set box color
+    const boxColor1 = isDarkMode ? '#121212' : '#deebc7'; // Set box color
+    const boxColor2 = isDarkMode ? '#403b35' : '#deebc7'; // Set box color popular base background
+    const boxColor3 = isDarkMode ? '#403b35' : '#42db7a'; // Set box color
+
     const alcoholComposition = [
         {
             name: t('bases.rum'),
             percentage: '40-50%',
-            taste: t('drinkList.rum_description')
+            taste: t('drinkList.rum_description'),
+            image:require('../../assets/stockImg/Rum.jpeg'),
         },
         {
             name: t('bases.gin'),
             percentage: '37.5-50%',
-            taste: t('drinkList.gin_description')
+            taste: t('drinkList.gin_description'),
+            image:require('../../assets/stockImg/Gin.jpeg'),
         },
         {
             name: t('bases.whisky'),
             percentage: '40-50%',
-            taste: t('drinkList.whisky_description')
+            taste: t('drinkList.whisky_description'),
+            image:require('../../assets/stockImg/Whisky.jpeg'),
         },
         {
             name: t('bases.vodka'),
             percentage: '40-50%',
-            taste: t('drinkList.vodka_description')
+            taste: t('drinkList.vodka_description'),
+            image:require('../../assets/stockImg/Vodka.jpeg'),
         },
         {
             name: t('bases.tequila'),
             percentage: '35-55%',
-            taste: t('drinkList.tequila_description')
+            taste: t('drinkList.tequila_description'),
+            image:require('../../assets/stockImg/Tequila.jpeg'),
         },
         {
             name: t('bases.brandy'),
             percentage: '35-60%',
-            taste: t('drinkList.brandy_description')
+            taste: t('drinkList.brandy_description'),
+            image:require('../../assets/stockImg/Brandy.jpeg'),
         }
     ];
 
-    const alcoholInfo = alcoholComposition.find(item => item.name.toLowerCase() === base.toLowerCase());
+    const alcoholInfo = alcoholComposition.find(item => 
+        item.name.toLowerCase() === base.toLowerCase() || 
+        t(`bases.${base.toLowerCase()}`).toLowerCase() === item.name.toLowerCase()
+    );
 
-    useLayoutEffect(() => {
-        navigation.setOptions({
-            title: '',
-            headerLeft: () => (
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <ArrowLeft size={24} color="white" />
-                </TouchableOpacity>
-            ),
-        });
-    }, [navigation, base]);
-
+    
     useEffect(() => {
         const fetchDrinks = async () => {
             try {
                 // Filter drinks based on the base alcohol type
                 const filteredDrinks = cocktails.filter((drink) =>
-                    drink.strIngredient1.toLowerCase() === base.toLowerCase() ||
-                    drink.strIngredient2?.toLowerCase() === base.toLowerCase() ||
-                    drink.strIngredient3?.toLowerCase() === base.toLowerCase()
+                    (drink.ingredients ?? []).some((ingredient) => ingredient.toLowerCase() === base.toLowerCase())
                 );
-    
-                // Extract ingredients
-                const drinksWithIngredients = filteredDrinks.map((drink) => {
-                    const ingredients: string[] = [];
-                    for (let i = 1; i <= 15; i++) {
-                        const ingredientKey = `strIngredient${i}` as keyof typeof drink;
-                        if (drink[ingredientKey]) {
-                            ingredients.push(drink[ingredientKey] as string);
-                        }
-                    }
-                    return { ...drink, ingredients };
-                });
-    
+
+                // Use the appropriate ingredients array based on the language
+                const drinksWithIngredients = filteredDrinks.map((drink) => ({
+                    ...drink,
+                    ingredients: (i18n.language === 'ja' ? drink.ingredientsJA : drink.ingredients) ?? [],
+                }));
+
                 setDrinkList(drinksWithIngredients);
             } catch (error) {
                 console.error("Error fetching drinks:", error);
@@ -96,9 +102,9 @@ export default function DrinkListScreen() {
                 setLoading(false);
             }
         };
-    
+
         fetchDrinks();
-    }, [base]);
+    }, [base, i18n.language]);
 
     useEffect(() => {
         const loadFavorites = async () => {
@@ -129,32 +135,38 @@ export default function DrinkListScreen() {
     }
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <View style={styles.headerContainer}>
-                <Text style={styles.baseText}>{base}{t("drinkList.based_on")}</Text>
-                <View style={styles.headerContentContainer}>  
-                    <Image source={{ uri: `https://www.thecocktaildb.com/images/ingredients/${base}-Medium.png` }} style={styles.headerImage} />
+        <><View style={[styles.headerContainer, { backgroundColor: boxColor2 }]}>
+            {alcoholInfo && <Text style={[styles.title, { color: textColor }]}>{alcoholInfo.name}</Text>}
+        </View><TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                <Ionicons style={styles.headerBack} name="arrow-back" size={24} color={isDarkMode ? "white" : "black"} />
+            </TouchableOpacity><ScrollView contentContainerStyle={styles.container}>
+
+                <ImageBackground source={alcoholInfo?.image} style={styles.headerContainer1}>
+                </ImageBackground>
+                <View style={styles.headerContentContainer}>
                     {alcoholInfo && (
                         <View style={styles.alcoholInfoContainer}>
-                            <Text style={styles.alcoholInfoText}>Alcohol Percentage: {alcoholInfo.percentage}</Text>
-                            <Text style={styles.alcoholInfoText1}>Taste: {alcoholInfo.taste}</Text>
+                            <Text style={[styles.alcoholInfoText, { color: textColor }]}>Alcohol Percentage: {alcoholInfo.percentage}</Text>
+                            <Text style={[styles.alcoholInfoText1, { color: textColor }]}>Taste: {alcoholInfo.taste}</Text>
                         </View>
                     )}
                 </View>
-            </View>
-            {Array.isArray(drinkList) && drinkList.map((drink, index) => (
-                <Link key={index} href={`/cocktails/particulardrink?idDrink=${drink.idDrink}`} asChild>
-                    <TouchableOpacity style={styles.drinkContainer}>
-                        <Image source={getImage(drink.strDrinkThumb)} style={styles.drinkImage} />
-                        <View style={styles.drinkDetails}>
-                            <Text style={styles.drinkName}>{drink.strDrink}</Text>
-                            <Text style={styles.ingredientsText}>{drink.ingredients.join(', ')}</Text>
-                        </View>
-                        
-                    </TouchableOpacity>
-                </Link>
-            ))}
-        </ScrollView>
+
+                {Array.isArray(drinkList) && drinkList.map((drink, index) => {
+                    const drinkName = i18n.language === 'ja' ? drink.strDrinkJa : drink.strDrink;
+                    return (
+                        <Link key={index} href={`/cocktails/particulardrink?idDrink=${drink.idDrink}`} asChild>
+                            <TouchableOpacity style={styles.drinkContainer}>
+                                <Image source={getImage(drink.strDrinkThumb)} style={styles.drinkImage} />
+                                <View style={styles.drinkDetails}>
+                                    <Text style={styles.drinkName}>{drinkName}</Text>
+                                    <Text style={styles.ingredientsText}>{drink.ingredients.join(', ')}</Text>
+                                </View>
+                            </TouchableOpacity>
+                        </Link>
+                    );
+                })}
+            </ScrollView></>
     );
 }
 
@@ -164,50 +176,53 @@ const styles = StyleSheet.create({
     container: {
         padding: 16,
     },
-    headerContainer: {
+    headerBack:{
+        marginTop:-10,
+        paddingBottom: 10,
+        marginLeft: -10,
+    
+    },
+    title: {
+        fontSize: 32,
+        height: 50,
+        fontWeight: 'bold',
+        marginTop:50,
+
+        textAlign: 'center',
+    },
+    headerContainer1: {
         alignItems: 'center',
-        marginBottom: 30,
+        marginTop: 40,
+        height: 300,
         backgroundColor: '#D9DFC6',
         borderRadius: 8,
         padding: 16,
         overflow: 'hidden',
+        paddingTop: 250,
+    },
+    headerContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 10,
+        height: 120,
+        position: 'absolute', top: 0, left: 0, right: 0,
+        zIndex: 10
     },
     headerContentContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
-
+        justifyContent: 'center', // Center content horizontally
+        position: 'relative', // Enable positioning for background image
     },
-    headerImage: {
-        width: 100,
-        height: 200,
-        marginBottom: 10,
-        resizeMode: 'cover',
-        borderRadius: 8,
-    },
-    baseText: {
-        fontSize: 32,
-        width: width - 32,
-        fontWeight: 'bold',
-        marginTop: 20,
-        textAlign: 'center',
-         color: 'black',
-        fontFamily: 'Gerorgia',
-        padding: 10,
-        borderRadius: 10,
-    },
-  
     alcoholInfoContainer: {
-        marginTop: 10,
-        backgroundColor: '#e3edc2',
-        height: 150,
-        width: 200,
+        height: 100,
+        width: '98%',
         borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'space-around',
     },
     alcoholInfoText: {
-        fontSize: 20,
+        fontSize: 15,
         color: 'black',
         textAlign: 'center',
 
@@ -217,6 +232,15 @@ const styles = StyleSheet.create({
         color: 'black',
         textAlign: 'center',
 
+    },
+    backButton: {
+        top: 16,
+        left: 16,
+        zIndex: 10,
+        padding: 10,
+        marginTop: 40,
+        width: 50,
+    
     },
     drinkContainer: {
         flexDirection: 'row',
