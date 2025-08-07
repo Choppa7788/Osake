@@ -50,6 +50,7 @@ export default function HomeScreen() {
   const boxColor1 = isDarkMode ? '#121212' : '#deebc7'; // Set box color
   const boxColor2 = isDarkMode ? '#403b35' : '#deebc7'; // Set box color popular base background
   const boxColor3 = isDarkMode ? '#403b35' : '#42db7a'; // Set box color
+
   useEffect(() => {
     const fetchCocktails = async () => {
       try {
@@ -136,8 +137,7 @@ export default function HomeScreen() {
             );
           })}
         </View>
-
-        {/* Favourites */}
+     
         <Text style={[styles.sectionTitle, { color: textColor }]}>{t("headers.bases")}</Text>
         <FlatList
           data={[
@@ -163,6 +163,18 @@ export default function HomeScreen() {
             </Link>
           )}
         />
+
+     <Link href="../pages/whatCanImake" asChild>
+          <TouchableOpacity style={styles.whatCanIMakeButton}>
+            <Image source={require("../../assets/icons/cocktailGlass.png")} style={styles.whatCanIMakeImage} />
+            <View style={styles.whatCanIMakeTextContainer}>
+              <Text style={styles.whatCanIMakeButtonText}>{t("whatCanIMake.whatCanIMake")}</Text>
+              <Text style={styles.whatCanIMakeSubtitle}>
+                {t("whatCanIMake.subtitle")}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </Link>
 
         {/* Must Drink at a Bar */}
         <View style={styles.mustDrinkContainer}>
@@ -204,19 +216,60 @@ export default function HomeScreen() {
             ))}
           </View>
         </View>
-
-        {/* "What Can I Make?" Button */}
-        <Link href="../pages/whatCanImake" asChild>
-          <TouchableOpacity style={styles.whatCanIMakeButton}>
-            <Image source={require("../../assets/icons/cocktailGlass.png")} style={styles.whatCanIMakeImage} />
-            <View style={styles.whatCanIMakeTextContainer}>
-              <Text style={styles.whatCanIMakeButtonText}>{t("whatCanIMake.whatCanIMake")}</Text>
-              <Text style={styles.whatCanIMakeSubtitle}>
-                {t("whatCanIMake.subtitle")}
-              </Text>
-            </View>
+    <View style={styles.moreContainer}>
+      <Text style={[styles.sectionTitle, { color: textColor }]}>
+        {t("more.more", "Special Options")}
+      </Text>
+  <FlatList
+    data={[
+      {
+        id: '1',
+        name: t("more.truth and dare"),
+        link: '../morePages/truthdare',
+        image: require('../../assets/icons/truthdare.png'),
+        backgroundColor: '#8e44ad'
+      },
+      {
+        id: '2',
+        name: t("more.detox"),
+        link: '../morePages/detox',
+        image: require('../../assets/icons/detox.png'),
+        backgroundColor: '#16a085'
+      },
+     {
+        id: '3',
+        name: t("more.social"),
+        link: '../morePages/social',
+        image: require('../../assets/icons/social.png'),
+        backgroundColor: '#16a085'
+      },
+    ]}
+    horizontal
+    showsHorizontalScrollIndicator={false}
+    keyExtractor={(item) => item.id}
+    contentContainerStyle={{ paddingVertical: 20 }}
+    renderItem={({ item }) => (
+      item.link ? (
+        <Link href={item.link as any} asChild>
+          <TouchableOpacity style={styles.barItem}>
+            <Image source={item.image} style={styles.barImage} />
+            <Text style={[styles.barText, { color: textColor }]}>
+              {item.name}
+            </Text>
           </TouchableOpacity>
         </Link>
+      ) : (
+        <View style={[styles.barItem, { backgroundColor: item.backgroundColor, opacity: 0.7 }]}>
+          <Image source={item.image} style={styles.barImage} />
+          <Text style={[styles.barText, { color: textColor }]}>
+            {item.name}
+          </Text>
+        </View>
+      )
+    )}
+  />
+</View>
+        
       </ScrollView>
     </View>
   );
@@ -327,6 +380,13 @@ const styles = StyleSheet.create({
     width: 400,
     height: 300,
   },
+  moreContainer: {
+    marginLeft: -20,
+    marginRight: -20,
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingBottom: 16,
+  },
   barItem: {
     marginRight: 16,
     width: 200,
@@ -344,6 +404,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+    backgroundColor:"white",
     elevation: 5, // For Android shadow
     },
     barText: {
@@ -403,21 +464,21 @@ const styles = StyleSheet.create({
   whatCanIMakeButton: {
     flexDirection: 'row', // Align image and text horizontally
     alignItems: 'center',
-    height: 200,
+    height: 170,
     width: '100%',
-    backgroundColor: '#1DB954',
+    backgroundColor: '#9d0595ff',
     borderRadius: 20,
     padding: 16,
     marginTop: 20,
-    marginBottom: 20,
   },
   whatCanIMakeImage: {
-    width: 100,
+    width: 90,
     height: 150,
     marginRight: 16,
     resizeMode: 'contain', // Ensure the image fits within the container
   },
   whatCanIMakeTextContainer: {
+    marginTop: 10,
     flex: 1,
   },
   whatCanIMakeButtonText: {

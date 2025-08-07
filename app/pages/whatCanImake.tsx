@@ -5,6 +5,7 @@ import { Link, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import cocktails from '../../assets/database/cocktails.json';
 import { getImage } from '@/cocktails/imagepath';
+import { red } from 'react-native-reanimated/lib/typescript/Colors';
 
 const WhatCanIMake: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -38,16 +39,18 @@ const WhatCanIMake: React.FC = () => {
   ).filter(Boolean);
 
   const filteredIngredients = searchQuery
-    ? allIngredients.filter((ingredient) =>
-        ingredient.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+    ? allIngredients
+        .filter((ingredient): ingredient is string => 
+          typeof ingredient === 'string' && ingredient.toLowerCase().includes(searchQuery.toLowerCase())
+        )
     : [];
 
-  const filteredDrinks = cocktails.filter((cocktail) =>
-    selectedIngredients.every((ingredient) =>
-      (i18n.language === 'ja' ? cocktail.ingredientsJA : cocktail.ingredients).includes(ingredient)
-    )
-  );
+  const filteredDrinks = cocktails.filter((cocktail) => {
+    const ingredientsList = i18n.language === 'ja' ? cocktail.ingredientsJA : cocktail.ingredients;
+    return selectedIngredients.every((ingredient) =>
+      Array.isArray(ingredientsList) && ingredientsList.includes(ingredient)
+    );
+  });
 
   const drinksCountMessage = selectedIngredients.length > 0
     ? `${filteredDrinks.length} ${t('whatCanIMake.drinksFound')}`
@@ -62,6 +65,10 @@ const WhatCanIMake: React.FC = () => {
 
   const handleRemoveIngredient = (ingredient: string) => {
     setSelectedIngredients(selectedIngredients.filter((item) => item !== ingredient));
+  };
+
+  const handleScrollBeginDrag = () => {
+    Keyboard.dismiss();
   };
 
   const getBubbleColor = (ingredient: string) => {
@@ -106,7 +113,8 @@ const WhatCanIMake: React.FC = () => {
         <FlatList
           data={['ingredients', 'yourIngredients', 'drinks']}
           keyExtractor={(item) => item}
-          keyboardShouldPersistTaps="handled" // Ensure taps are handled even when the keyboard is open
+          keyboardShouldPersistTaps="handled"
+          onScrollBeginDrag={handleScrollBeginDrag} // Dismiss keyboard when scrolling starts
           renderItem={({ item }) => {
             switch (item) {
               case 'ingredients':
@@ -118,7 +126,8 @@ const WhatCanIMake: React.FC = () => {
                     renderItem={renderItem}
                     numColumns={2}
                     contentContainerStyle={styles.bubblesContainer}
-                    keyboardShouldPersistTaps="handled" // Ensure taps are handled for nested FlatList
+                    keyboardShouldPersistTaps="handled"
+                    onScrollBeginDrag={handleScrollBeginDrag} // Dismiss keyboard when scrolling starts
                   />
                 );
               case 'yourIngredients':
@@ -127,19 +136,26 @@ const WhatCanIMake: React.FC = () => {
                     <Text style={[styles.sectionTitle, { color: textColor }]}>
                       {t('whatCanIMake.yourIngredients')}
                     </Text>
-                    <FlatList
-                      data={selectedIngredients}
-                      keyExtractor={(ingredient) => ingredient}
-                      horizontal
-                      renderItem={({ item }) => (
-                        <View style={[styles.selectedBubble, { backgroundColor: boxColor2 }]}>
-                          <Text style={[styles.selectedBubbleText, { color: textColor }]}>{item}</Text>
-                          <TouchableOpacity onPress={() => handleRemoveIngredient(item)}>
-                            <Ionicons name="close-circle" size={20} color="#ff0000" />
-                          </TouchableOpacity>
-                        </View>
-                      )}
-                    />
+                    {selectedIngredients.length === 0 ? (
+                      <Text style={[styles.noneSelectedText]}>
+                        {t('whatCanIMake.noneSelected', 'None selected')}
+                      </Text>
+                    ) : (
+                      <FlatList
+                        data={selectedIngredients}
+                        keyExtractor={(ingredient) => ingredient}
+                        horizontal
+                        onScrollBeginDrag={handleScrollBeginDrag}
+                        renderItem={({ item }) => (
+                          <View style={[styles.selectedBubble, { backgroundColor: boxColor2 }]}>
+                            <Text style={[styles.selectedBubbleText, { color: textColor }]}>{item}</Text>
+                            <TouchableOpacity onPress={() => handleRemoveIngredient(item)}>
+                              <Ionicons name="close-circle" size={20} color="#ff0000" />
+                            </TouchableOpacity>
+                          </View>
+                        )}
+                      />
+                    )}
                     <Text style={[styles.drinksCount, { color: textColor }]}>
                       {drinksCountMessage}
                     </Text>
@@ -148,24 +164,23 @@ const WhatCanIMake: React.FC = () => {
               case 'drinks':
                 return (
                   <View style={styles.drinksContainer}>
-                    <Text style={[styles.sectionTitle, { color: textColor }]}>
+                    <Text style={[styles.sectionTitle, { color: textColor, marginLeft: 10 }]}>
                       {t('whatCanIMake.drinks', 'Drinks')}
                     </Text>
                     <FlatList
                       data={filteredDrinks}
                       keyExtractor={(item) => item.idDrink}
+                      onScrollBeginDrag={handleScrollBeginDrag} // Dismiss keyboard when scrolling starts
                       renderItem={({ item }) => {
-                        const remainingIngredients = (i18n.language === 'ja' ? item.ingredientsJA : item.ingredients)
-                          .filter((ingredient) => !selectedIngredients.includes(ingredient))
-                          .slice(0, 4);
+                        const ingredientsList = i18n.language === 'ja' ? item.ingredientsJA : item.ingredients;
+                        const remainingIngredients = Array.isArray(ingredientsList)
+                          ? ingredientsList.filter((ingredient) => 
+                              ingredient && !selectedIngredients.includes(ingredient)
+                            ).slice(0, 4)
+                          : [];
                         return (
                           <Link href={`/cocktails/particulardrink?idDrink=${item.idDrink}`} asChild>
-                            <TouchableOpacity
-                              style={
-                                styles.drinkBox
-                                // Grey for dark, yellow for light
-                              }
-                            >
+                            <TouchableOpacity style={styles.drinkBox}>
                               <Image source={getImage(item.strDrinkThumb)} style={styles.drinkImage} />
                               <View style={styles.drinkDetails}>
                                 <Text style={[styles.drinkName, { color: textColor }]}>{item.strDrink}</Text>
@@ -269,6 +284,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 15,
     borderRadius: 8,
+
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -292,6 +308,11 @@ const styles = StyleSheet.create({
   remainingIngredients: {
     color: 'red',
     fontSize: 12,
+  },
+  noneSelectedText: {
+    fontStyle: 'italic',
+    marginTop: 8,
+    color: 'red'
   },
 });
 

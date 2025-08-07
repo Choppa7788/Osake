@@ -33,12 +33,20 @@
         "removeFav": "お気に入りから削除",
         "deleteDrink": "ドリンクを削除",
         "removeDrink": "このドリンクを削除してもよろしいですか？",
-        "cancel": "キャンセル",
         "delete": "削除",
         "drinknotFound": "ドリンクが見つかりません",
         "glass": "グラス",
         "category":"カテゴリー",
-        "drinkName":"あなたのドリンク"
+        "shareImage": "共有",
+        "drinkName":"あなたのドリンク",
+        "forcocktail":"カクテル用",
+        "searchfor":"検索 : ",
+        "searchDescription":"この材料についてのカクテルを学ぶためにGoogle検索を開きます。",
+        "searchPlaceholder":"検索",
+        "cancel":"キャンセル",
+        "standard":"標準",
+        "checkThisOut1":"この",
+        "checkThisOut2":"カクテルレシピをOSAKEアプリからチェックしてください！ 🍹"
     },
     "tab":
     {  "home":"ホーム",
@@ -102,6 +110,12 @@
         "vodka_description": "ウォッカはクリーンで、ほのかな甘みとペッパーのノートがあります",
         "tequila_description": "テキーラはアガベの風味があり、シトラス、スパイス、ハーブのノートがあります",
         "brandy_description": "ブランデーはフルーティーで、キャラメル、バニラ、オークのノートがあります"
+    },
+    "more": {
+        "more": "もっと",
+        "truth and dare": "真実か挑戦",
+        "detox": "デトックス",
+        "social": "インスタ"
     },
     "myBar": {
         "pageTitle": "マイバー",

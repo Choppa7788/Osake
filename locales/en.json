@@ -32,7 +32,7 @@
         "yourIngredients": "Your Ingredients",
         "all": "All ",
         "drinksFound": "Drinks Found",
-        "allDrinksFound": "Drinks Found",
+        "allDrinksFound": "Drinks are here",
         "drinks": "Drinks"
     },
     "tab": {
@@ -69,11 +69,19 @@
         "removeFav":"Remove from favorites",
         "deleteDrink":"Delete drink",
         "removeDrink":"Are you sure you want to delete this drink?",
-        "cancel":"Cancel",
         "delete":"Delete",
+        "shareImage":"Share Drink",
         "drinknotFound":"Drink not found",
         "glass":"Glass",
-        "yourDrink":"Your drink"
+        "yourDrink":"Your drink",
+        "forcocktail":" for cocktail",
+        "searchfor":"Look up ",
+        "searchDescription":"This will open Google search to learn more about this ingredient for cocktails.",
+        "searchPlaceholder":"Search",
+        "cancel":"Cancel",
+        "standard:":"STANDARD",
+        "checkThisOut1":"Check out this",
+        "checkThisOut2":" cocktail recipe from OSAKE app! 🍹"
     },
 
     "mustDrink": {
@@ -103,6 +111,13 @@
         "vodka_description": "Vodka is clean with subtle sweetness and peppery notes",
         "tequila_description": "Tequila has agave flavors with notes of citrus, spices, and herbs",
         "brandy_description": "Brandy is fruity with notes of caramel, vanilla, and oak"
+    },
+    "more":
+    {
+        "more": "More",
+        "truth and dare": "Truth or Dare",
+        "detox": "Detox",
+        "social": "Social"
     },
     "myBar": {
         "pageTitle": "My Bar",

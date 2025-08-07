@@ -35,6 +35,11 @@ export default function RootLayout() {
         <Stack.Screen name="+not-found" />
         <Stack.Screen name="myBar" options={{ title: "My Bar" }} />
         <Stack.Screen name="addDrink" options={{ title: "Add Drink" }} />
+        <Stack.Screen name="search" options={{ title: "Search" }} />
+        <Stack.Screen name="whatCanImake" options={{ title: "What Can I Make?" }} />
+        <Stack.Screen name="truthdare" options={{ title: "Truth or Dare" }} />
+        <Stack.Screen name="detox" options={{ title: "Detox" }} />
+        <Stack.Screen name="social" options={{ title: "Social" }} />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
