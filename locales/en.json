@@ -1,4 +1,21 @@
 {
+    "common": {
+        "ok": "OK",
+        "cancel": "Cancel",
+        "yes": "Yes",
+        "no": "No",
+        "save": "Save",
+        "delete": "Delete",
+        "edit": "Edit",
+        "add": "Add",
+        "next": "Next",
+        "done": "Done",
+        "back": "Back",
+        "close": "Close",
+        "error": "Error",
+        "loading": "Loading...",
+        "noData": "No data available"
+    },
     "greetings": {
         "good_morning": "Good morning",
         "good_afternoon": "Good afternoon",
@@ -21,8 +38,8 @@
         "likedDrinks": "Liked Drinks",
         "noDrinks": "No drinks found",
         "oneDrink": "1 drink found",
-        "drinks":" drinks found"
-
+        "drinks":" drinks found",
+        "subtitle": "Your personal collection"
     },
     "whatCanIMake": {
         "whatCanIMake": "What can I make?",
@@ -39,7 +56,8 @@
         "home": "Home",
         "library": "Library",
         "search": "Search",
-        "settings": "Settings"
+        "settings": "Settings",
+        "surprise": "Surprise Me"
     },
     "bases": {
         "rum": "Rum",
@@ -81,7 +99,9 @@
         "cancel":"Cancel",
         "standard:":"STANDARD",
         "checkThisOut1":"Check out this",
-        "checkThisOut2":" cocktail recipe from OSAKE app! 🍹"
+        "checkThisOut2":" cocktail recipe from OSAKE app! 🍹",
+        "upgrade":"Upgrade to View",
+        "rateThisDrink":"Rate this drink"
     },
 
     "mustDrink": {
@@ -102,6 +122,19 @@
     "search": {
         "search": "Search",
         "search_placeholder": "What do you want to drink?"
+    },
+    "social": {
+        "socialTitle": "Social Media",
+        "subtitle": "Follow us on social media",
+        "instagram": "Instagram",
+        "x": "X",
+        "openInstagram": "Open Instagram",
+        "openX": "Open X",
+        "openFacebook": "Open Facebook",
+        "facebook": "Facebook",
+        "followUs": "Follow us",
+        "shareApp": "Share the app",
+        "rateApp": "Rate the app"
     },
     "drinkList": {
         "based_on": "Based on the drink",
@@ -127,7 +160,6 @@
         "noDrinks": "No drinks saved yet",
         "addNew2": "Add a new drink",
         "DrinkName": "Drink Name",
-        "category": "Category",
         "ingredients": "Ingredients",
         "ingredientName": "Ingredient Name",
         "measure": "Measure",
@@ -146,7 +178,9 @@
         "cameraPermission":"Sorry, we need camera permissions to make this work!",
         "alert01":"Please enter a drink name",
         "drinkSaved":"Drink saved successfully",
-        "drinkSavedError":"Error saving drink, Please try again"
+        "drinkSavedError":"Error saving drink, Please try again",
+        "myParticularDrink":" My Custom Drink",
+        "category":"Category"
     },
     "experimental": {
         "experimental": "Experimental Cocktail",
@@ -167,13 +201,34 @@
         "feedback_error": "Error sending feedback, Please try again"
     },
     "upgrade": {
-
         "upgradeTitle": "Upgrade",
         "upgrade": "Upgrade to Pro",
-        "upgrade_text": "Buy me a coffee to support the app and unlock all 400+ drinks with one time purchase of $5.",
+        "upgrade_text": "Buy me a cocktail to support the app and unlock all 400+ drinks with one time purchase of $5.",
         "upgrade_button": "Upgrade Now",
         "upgrade_success": "Upgrade successful",
         "upgrede_prompt": "You have successfully purchased the Remove Ads feature!",
-        "upgrade_error": "Error upgrading, Please try again"
+        "upgrade_error": "Error upgrading, Please try again",
+        "premiumRequired": "Premium Required",
+        "myBarDescription": "You've discovered a Premium feature! Create, save, and manage custom drinks.",
+        "upgradeNow": "Upgrade Now"
+    },
+    "truth_and_dare": {
+       "truth_and_dare": "Truth or Dare",
+        "TD_placeholder": "Let's get the party started!",
+        "Number_of_Players": "Number of Players",
+        "Game_Settings": "Game Setting",
+        "Casual": "Casual",
+        "Sexual": "Intimate",
+        "Start_Game": "Start Game",
+        "Tap_Spin": "Tap to Spin",
+        "Spin": "SPIN",
+        "Player_": "Player ",
+        "Player_1": "'s turn",
+        "Roulette": "Roulette",
+        "Stop": "STOP",
+        "Truth": "TRUTH",
+        "Dare": "DARE",
+        "Next_Round": "Next Round",
+        "New_game": "New Game"
     }
 }

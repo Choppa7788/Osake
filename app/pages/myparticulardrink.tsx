@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { deleteDrinkFromDatabase, getSavedDrinks, updateDrinkNotesInDatabase } from '../services/database'; // Import the delete, update, and get functions
 import { useTranslation } from 'react-i18next';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type Drink = {
     name: string;
@@ -42,7 +43,7 @@ export default function MyParticularDrinkScreen() {
             setDrinkData(parsedDrink);
             setNotes(parsedDrink.notes);
             navigation.setOptions({
-                title:t("particularDrink.drinkName"),
+                title:t("myBar.myParticularDrink"),
                 headerLeft: () => (
                     <TouchableOpacity onPress={() => navigation.goBack()}>
                         <Ionicons name="arrow-back" size={24} color={arrowColor} />
@@ -113,38 +114,71 @@ export default function MyParticularDrinkScreen() {
         >
             <ScrollView style={[styles.container, { backgroundColor }]}>
                 <Text style={[styles.title, { color: textColor }]}>{drinkData.name}</Text>
-                {drinkData.image && <Image source={{ uri: drinkData.image }} style={styles.image} />}
-                <Text style={[styles.subtitle, { color: textColor }]}>{t("particularDrink.ingredients")}:</Text>
-                <View style={[styles.ingredientsBox, { backgroundColor: boxColor }]}>
-                    {drinkData.ingredients.map((item, index) => (
-                        <View key={index} style={styles.ingredientRow}>
-                            <Text style={[styles.ingredientName, { color: textColor }]}>{item.name}</Text>
-                            <Text style={[styles.ingredientMeasure, { color: textColor }]}>{item.measure}</Text>
-                        </View>
-                    ))}
+                {drinkData.image && (
+                    <View style={styles.imageCardShadow}>
+                        <Image source={{ uri: drinkData.image }} style={styles.image} />
+                    </View>
+                )}
+
+                {/* Ingredients */}
+                <View style={[styles.card, isDarkMode ? styles.cardDark : styles.cardLight]}>
+                    <Text style={[styles.subtitle, { color: textColor }]}>{t("particularDrink.ingredients")} :</Text>
+                    <View style={styles.ingredientsBoxInner}>
+                        {drinkData.ingredients.map((item, index) => (
+                            <View key={index} style={styles.ingredientRow}>
+                                <Text style={[styles.ingredientName, { color: textColor }]}>{item.name}</Text>
+                                <Text style={[styles.ingredientMeasure, { color: textColor }]}>{item.measure}</Text>
+                            </View>
+                        ))}
+                    </View>
                 </View>
-                <Text style={[styles.subtitle, { color: textColor }]}>{t("particularDrink.glass")}</Text>
-                <Text style={[styles.glass, { color: textColor }]}>{drinkData.glass}</Text>
-                <Text style={[styles.subtitle, { color: textColor }]}>{t("particularDrink.instructions")}:</Text>
-                <View style={[styles.instructionsBox, { backgroundColor: boxColor }]}>
-                    {drinkData.instructions.map((instruction, index) => (
-                        <Text key={index} style={[styles.instructions, { color: textColor }]}>{instruction.step}</Text>
-                    ))}
+
+                {/* Glass */}
+                <View style={[styles.card, isDarkMode ? styles.cardDark : styles.cardLight]}>
+                    <Text style={[styles.subtitle, { color: textColor }]}>{t("particularDrink.glass")} :</Text>
+                    <Text style={[styles.glass, { color: textColor }]}>{drinkData.glass}</Text>
                 </View>
-                <Text style={[styles.subtitle, { color: textColor }]}>{t("particularDrink.category")}:</Text>
-                <Text style={[styles.category, { color: textColor }]}>{drinkData.category}</Text>
-                <Text style={[styles.subtitle, { color: textColor }]}>{t("particularDrink.notes")}:</Text>
-                <TextInput
-                    style={[styles.notesInput, { color: textColor, backgroundColor: boxColor }]}
-                    multiline
-                    numberOfLines={4}
-                    value={notes}
-                    onChangeText={handleSaveNotes}
-                    placeholder={t("particularDrink.notes_place_holder")}
-                    placeholderTextColor={isDarkMode ? "#ccc" : "#555"}
-                />
-                <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteDrink}>
-                    <Text style={styles.deleteButtonText}>Delete Drink</Text>
+
+                {/* Instructions */}
+                <View style={[styles.card, isDarkMode ? styles.cardDark : styles.cardLight]}>
+                    <Text style={[styles.subtitle, { color: textColor }]}>{t("particularDrink.instructions")} :</Text>
+                    <View style={styles.instructionsBoxInner}>
+                        {drinkData.instructions.map((instruction, index) => (
+                            <Text key={index} style={[styles.instructions, { color: textColor }]}>{instruction.step}</Text>
+                        ))}
+                    </View>
+                </View>
+
+                {/* Category */}
+                <View style={[styles.card, isDarkMode ? styles.cardDark : styles.cardLight]}>
+                    <Text style={[styles.subtitle, { color: textColor }]}>{t("myBar.category")} :</Text>
+                    <Text style={[styles.category, { color: textColor }]}>{drinkData.category}</Text>
+                </View>
+
+                {/* Notes */}
+                <View style={[styles.card, isDarkMode ? styles.cardDark : styles.cardLight]}>
+                    <Text style={[styles.subtitle, { color: textColor }]}>{t("particularDrink.notes")} :</Text>
+                    <TextInput
+                        style={[styles.notesInput, { color: textColor, backgroundColor: isDarkMode ? '#232323' : '#f9f9f9' }]}
+                        multiline
+                        numberOfLines={4}
+                        value={notes}
+                        onChangeText={handleSaveNotes}
+                        placeholder={t("particularDrink.notes_place_holder")}
+                        placeholderTextColor={isDarkMode ? "#ccc" : "#555"}
+                    />
+                </View>
+
+                {/* Delete Button */}
+                <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteDrink} activeOpacity={0.85}>
+                    <LinearGradient
+                        colors={['#ff5858', '#e82e2e']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.deleteGradient}
+                    >
+                        <Text style={styles.deleteButtonText}>{t("particularDrink.deleteDrink")}</Text>
+                    </LinearGradient>
                 </TouchableOpacity>
             </ScrollView>
         </KeyboardAvoidingView>
@@ -154,94 +188,133 @@ export default function MyParticularDrinkScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
-        backgroundColor: '#fff',
+        padding: 0,
+        backgroundColor: 'transparent',
     },
     title: {
         fontSize: 32,
         fontWeight: 'bold',
         marginBottom: 16,
         textAlign: 'center',
+        marginTop: 24,
+        letterSpacing: 0.5,
+    },
+    imageCardShadow: {
+        alignSelf: 'center',
+        borderRadius: 18,
+        marginBottom: 18,
+        marginTop: 6,
+        shadowColor: '#000',
+        shadowOpacity: 0.18,
+        shadowRadius: 16,
+        shadowOffset: { width: 0, height: 8 },
+        elevation: 8,
+        backgroundColor: 'transparent',
     },
     image: {
-        width: '100%',
-        height: 300,
-        borderRadius: 10,
-        marginBottom: 16,
-        resizeMode: 'contain',
+        width: 320,
+        height: 220,
+        borderRadius: 18,
+        resizeMode: 'cover',
+    },
+    // Glass card
+    card: {
+        borderRadius: 18,
+        marginHorizontal: 16,
+        marginBottom: 18,
+        padding: 18,
+        borderWidth: 1,
+    },
+    cardDark: {
+        backgroundColor: 'rgba(255,255,255,0.06)',
+        borderColor: 'rgba(255,255,255,0.10)',
+        shadowColor: '#000',
+        shadowOpacity: 0.18,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 4 },
+        elevation: 4,
+    },
+    cardLight: {
+        backgroundColor: 'rgba(0,0,0,0.04)',
+        borderColor: 'rgba(0,0,0,0.08)',
+        shadowColor: '#000',
+        shadowOpacity: 0.10,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 4 },
+        elevation: 3,
     },
     subtitle: {
         fontSize: 20,
         fontWeight: 'bold',
         marginBottom: 8,
+        letterSpacing: 0.2,
     },
-    ingredientsBox: {
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 8,
-        padding: 16,
-        marginBottom: 16,
-        backgroundColor: '#f9f9f9',
+    ingredientsBoxInner: {
+        // Remove border, padding handled by card
     },
     ingredientRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         borderBottomWidth: 1,
-        borderBottomColor: '#ccc',
-        paddingVertical: 8,
+        borderBottomColor: '#e0e0e0',
+        paddingVertical: 7,
     },
     ingredientName: {
-        fontSize: 18,
-        fontWeight: 'bold',
+        fontSize: 16,
+        fontWeight: '600',
     },
     ingredientMeasure: {
-        fontSize: 16,
-        color: '#555',
+        fontSize: 15,
+        opacity: 0.8,
     },
     glass: {
-        fontSize: 18,
-        marginBottom: 16,
+        fontSize: 16,
+        marginBottom: 2,
+        marginTop: 2,
     },
-    instructionsBox: {
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 8,
-        padding: 16,
-        backgroundColor: '#f9f9f9',
-        marginBottom: 16,
+    instructionsBoxInner: {
+        // Remove border, padding handled by card
     },
     instructions: {
-        fontSize: 16,
-        lineHeight: 24,
-        marginBottom: 8,
+        fontSize: 15,
+        lineHeight: 22,
+        marginBottom: 6,
     },
     category: {
-        fontSize: 18,
-        marginBottom: 16,
+        fontSize: 16,
+        marginBottom: 2,
+        marginTop: 2,
     },
     notesInput: {
-        color: 'black',
         borderWidth: 1,
         borderColor: '#ccc',
-        borderRadius: 8,
-        padding: 16,
-        marginBottom: 16,
+        borderRadius: 10,
+        padding: 14,
+        marginTop: 6,
+        marginBottom: 0,
         backgroundColor: '#f9f9f9',
         textAlignVertical: 'top',
+        fontSize: 15,
     },
     deleteButton: {
-        marginTop: 50,
-        backgroundColor: 'red',
-        padding: 16,
-        borderRadius: 8,
+        marginTop: 30,
+        marginBottom: 40,
+        marginHorizontal: 40,
+        borderRadius: 24,
+        overflow: 'hidden',
+        elevation: 2,
+    },
+    deleteGradient: {
+        paddingVertical: 14,
         alignItems: 'center',
-        marginBottom: 50,
+        borderRadius: 24,
     },
     deleteButtonText: {
         color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
+        letterSpacing: 0.2,
     },
 });
 

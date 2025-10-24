@@ -170,20 +170,24 @@ const WhatCanIMake: React.FC = () => {
                     <FlatList
                       data={filteredDrinks}
                       keyExtractor={(item) => item.idDrink}
-                      onScrollBeginDrag={handleScrollBeginDrag} // Dismiss keyboard when scrolling starts
+                      onScrollBeginDrag={handleScrollBeginDrag}
                       renderItem={({ item }) => {
                         const ingredientsList = i18n.language === 'ja' ? item.ingredientsJA : item.ingredients;
                         const remainingIngredients = Array.isArray(ingredientsList)
-                          ? ingredientsList.filter((ingredient) => 
+                          ? ingredientsList.filter((ingredient) =>
                               ingredient && !selectedIngredients.includes(ingredient)
                             ).slice(0, 4)
                           : [];
+                        const displayName =
+                          i18n.language.startsWith('ja') && item.strDrinkJa
+                            ? item.strDrinkJa
+                            : item.strDrink;
                         return (
                           <Link href={`/cocktails/particulardrink?idDrink=${item.idDrink}`} asChild>
                             <TouchableOpacity style={styles.drinkBox}>
                               <Image source={getImage(item.strDrinkThumb)} style={styles.drinkImage} />
                               <View style={styles.drinkDetails}>
-                                <Text style={[styles.drinkName, { color: textColor }]}>{item.strDrink}</Text>
+                                <Text style={[styles.drinkName, { color: textColor }]}>{displayName}</Text>
                                 {remainingIngredients.length > 0 && (
                                   <Text style={styles.remainingIngredients}>
                                     {remainingIngredients.join(', ')}

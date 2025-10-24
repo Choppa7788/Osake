@@ -1,15 +1,22 @@
 {
   "expo": {
-    "name": "CocktailApp",
+    "name": "Sipster",
     "slug": "CocktailApp",
-    "version": "1.0.0",
+    "version": "1.0.8",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.vivregop77.CocktailApp",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Sipster needs access to your camera to let you take and add photos of your drinks.",
+        "NSPhotoLibraryUsageDescription": "Sipster lets you select and save photos of your drinks.",
+        "NSMicrophoneUsageDescription": "Sipster may use the microphone if you choose to record voice notes with your recipes."
+      },
+      "buildNumber": "8"
     },
     "android": {
       "adaptiveIcon": {
@@ -35,7 +42,9 @@
         }
       ],
       "expo-asset",
-      "expo-localization"
+      "expo-localization",
+      "react-native-iap",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

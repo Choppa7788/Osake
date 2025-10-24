@@ -1,4 +1,23 @@
 {
+    "common": {
+        "welcome": "OSAKEへようこそ",
+        "loading": "読み込み中...",
+        "error": "エラーが発生しました。もう一度お試しください。",
+        "noResults": "結果が見つかりません",
+        "tryAgain": "もう一度試す",
+        "ok": "OK",
+        "yes": "はい",
+        "no": "いいえ",
+        "cancel": "キャンセル",
+        "save": "保存",
+        "delete": "削除",
+        "edit": "編集",
+        "add": "追加",
+        "search": "検索",
+        "next": "次へ",
+        "back": "戻る",
+        "done": "完了"
+    },
     "greetings": {
         "good_morning": "おはようございます",
         "good_afternoon": "こんにちは",
@@ -18,10 +37,11 @@
         "random":"ランダム",
         "language":"言語",
         "feedback":"フィードバック",
-        "likedDrinks":"お気に入りのドリンク"
-        ,"noDrinks":"ドリンクが見つかりません",
+        "likedDrinks":"お気に入りのドリンク",
+        "noDrinks":"ドリンクが見つかりません",
         "oneDrink":"品のドリンクが見つかりました",
-        "drinks":"品のドリンクが見つかりました"
+        "drinks":"品のドリンクが見つかりました",
+        "subtitle":"あなたの個人的なコレクション"
     },
     "particularDrink": {
         "serving": "提供",
@@ -46,13 +66,16 @@
         "cancel":"キャンセル",
         "standard":"標準",
         "checkThisOut1":"この",
-        "checkThisOut2":"カクテルレシピをOSAKEアプリからチェックしてください！ 🍹"
+        "checkThisOut2":"カクテルレシピをOSAKEアプリからチェックしてください！ 🍹",
+        "upgrade":"プレミアムドリンク!! アップグレード",
+        "rateThisDrink":"このドリンクを評価"
     },
     "tab":
     {  "home":"ホーム",
         "library":"ライブラリ",
         "search":"検索",
-        "settings":"設定"
+        "settings":"設定",
+        "surprise":"サプライズ"
     },
     "bases": {
         "rum": "ラム",
@@ -115,7 +138,7 @@
         "more": "もっと",
         "truth and dare": "真実か挑戦",
         "detox": "デトックス",
-        "social": "インスタ"
+        "social": "ソーシャル"
     },
     "myBar": {
         "pageTitle": "マイバー",
@@ -144,7 +167,9 @@
         "cameraPermission": "申し訳ありませんが、これを機能させるにはカメラの許可が必要です！",
         "alert01": "ドリンク名を入力してください",
         "drinkSaved": "ドリンクが正常に保存されました!",
-        "drinkSavedError": "ドリンクの保存中にエラーが発生しました。もう一度お試しください"
+        "drinkSavedError": "ドリンクの保存中にエラーが発生しました。もう一度お試しください",
+        "myParticularDrink": "自分の特別なドリンク",
+        "category": "カテゴリー"
     },
     "experimental": {
         "experimental": "実験的なカクテル",
@@ -172,6 +197,49 @@
         "upgrade_button": "今すぐアップグレード",
         "upgrade_success": "アップグレードが成功しました",
         "upgrede_prompt": "広告削除機能を正常に購入しました！",
-        "upgrade_error": "アップグレード中にエラーが発生しました。もう一度お試しください"
-    }
+        "upgrade_error": "アップグレード中にエラーが発生しました。もう一度お試しください",
+        "premiumRequired": "プレミアムが必要です",
+        "myBarDescription": "あなたはプレミアム機能を発見しました！カスタムドリンクを作成、保存、管理します。",
+        "upgradeNow": "今すぐアップグレード"
+    },
+    "detox": {
+        "detoxTitle": "デトックスドリンク",
+        "detoxSubtitle": "アルコールを飲んだ後のデトックスに最適なドリンク",
+        "detoxDrinks": "デトックスドリンク"
+    },
+    "social": {
+        "socialTitle": "ソーシアル",
+        "subtitle": "私たちのソーシャルメディアをフォローしてください",
+        "instagram": "Instagram",
+        "x": "X",
+        "facebook": "Facebook",
+        "followUs": "フォローしてください",
+        "shareApp": "アプリを共有",
+        "shareText": "この素晴らしいカクテルアプリをチェックしてください！",
+        "openInstagram": "Instagramを開く",
+        "openFacebook": "Facebookを開く",
+        "openX": "Xを開く",
+        "rateApp": "App Storeで評価"
+    },
+   "truth_and_dare":
+   {    "truth_and_dare": "真実か挑戦",
+       "TD_placeholder": "パーティーを始めましょう！",
+       "Number_of_Players": "プレイヤーの人数",
+       "Game_Settings": "ゲーム設定",
+       "Casual": "カジュアル",
+       "Sexual": "セクシャル",
+       "Start_Game": "ゲーム開始",
+       "Tap_Spin": "タップしてスピン",
+       "Player_": "プレイヤー ",
+       "Player_1": "のターン",
+       "Roulette": "ルーレット",
+       "Spin": "回す",
+       "Stop": "止める",
+       "Truth": "真実",
+       "Dare": "挑戦",
+       "player": "プレイヤー",
+       "Next_Round": "次のラウンド",
+       "New_game": "新しいゲーム"
+   }
+
 }

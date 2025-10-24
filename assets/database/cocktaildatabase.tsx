@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const ozToMl = 29.5735;
+const ozToMl = 3035;
 
 const convertOzToMl = (measure: string) => {
     const regex = /(\d+(\.\d+)?)(?:\s*-\s*(\d+(\.\d+)?))?\s*oz/;

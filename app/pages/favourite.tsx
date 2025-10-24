@@ -11,7 +11,14 @@ import { getImage } from '@/cocktails/imagepath';
 export default function FavouriteScreen() {
     const { t, i18n } = useTranslation();
     const navigation = useNavigation();
-    const [drinkList, setDrinkList] = useState<{ idDrink: string; strDrink: string; strDrinkJa: string; strDrinkThumb: string }[]>([]);
+    const [drinkList, setDrinkList] = useState<{
+        idDrink: string;
+        strDrink: string;
+        strDrinkJa: string;
+        strDrinkThumb: string;
+        strIngredients?: string[];
+        strIngredientsJA?: string[];
+    }[]>([]);
     const [loading, setLoading] = useState(true);
     const [favorites, setFavorites] = useState<string[]>([]);
 
@@ -76,21 +83,34 @@ export default function FavouriteScreen() {
             </View>
             <ScrollView style={styles.container}>
                 <View style={styles.drinkList}>
-                    {drinkList.map((drink, index) => (
-                        <Link key={index} href={`/cocktails/particulardrink?idDrink=${drink.idDrink}`} asChild>
-                            <TouchableOpacity style={styles.drinkContainer}>
-                                <Image source={getImage(drink.strDrinkThumb)} style={styles.drinkImage} />
-                                <View style={styles.drinkDetails}>
-                                    <Text style={[styles.drinkName, { color: textColor }]}>
-                                        {i18n.language === 'en' ? drink.strDrink : drink.strDrinkJa}
-                                    </Text>
-                                </View>
-                                <TouchableOpacity onPress={() => toggleFavorite(drink.idDrink)}>
-                                    <FontAwesome name={favorites.includes(drink.idDrink) ? 'heart' : 'heart-o'} size={24} color="red" />
+                    {drinkList.map((drink, index) => {
+                        const title = i18n.language === 'en' ? drink.strDrink : drink.strDrinkJa;
+                        const ingredients =
+                            i18n.language === 'ja' && Array.isArray(drink.strIngredientsJA) && drink.strIngredientsJA.length
+                                ? drink.strIngredientsJA
+                                : (drink.strIngredients || []);
+                        const preview = ingredients.slice(0, 5).join(', ');
+                        return (
+                            <Link key={index} href={`/cocktails/particulardrink?idDrink=${drink.idDrink}`} asChild>
+                                <TouchableOpacity style={styles.drinkContainer}>
+                                    <Image source={getImage(drink.strDrinkThumb)} style={styles.drinkImage} />
+                                    <View style={styles.drinkDetails}>
+                                        <Text style={[styles.drinkName, { color: textColor }]} numberOfLines={1}>
+                                            {title}
+                                        </Text>
+                                        {!!preview && (
+                                            <Text style={styles.ingredientsPreview} numberOfLines={2}>
+                                                {preview}
+                                            </Text>
+                                        )}
+                                    </View>
+                                    <TouchableOpacity onPress={() => toggleFavorite(drink.idDrink)}>
+                                        <FontAwesome name={favorites.includes(drink.idDrink) ? 'heart' : 'heart-o'} size={24} color="red" />
+                                    </TouchableOpacity>
                                 </TouchableOpacity>
-                            </TouchableOpacity>
-                        </Link>
-                    ))}
+                            </Link>
+                        );
+                    })}
                 </View>
             </ScrollView>
         </View>
@@ -101,13 +121,19 @@ const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
     backButton: {
-        marginTop: 40,
-        marginLeft: -10,
-        marginBottom: 10,
+        position: 'absolute',
+        top: 56,
+        left: 16,
+        zIndex: 20,
+        padding: 10,
     },
     headerContainer: {
-        padding: 20,
+        paddingLeft: 70,
+        paddingTop: 60,
+        paddingBottom: 20,
+        paddingHorizontal: 20,
         flexDirection: 'column',
+        minHeight: 120,
     },
     headerText: {
         fontSize: 35,
@@ -130,11 +156,11 @@ const styles = StyleSheet.create({
     },
     drinkContainer: {
         width: '100%',
-        marginTop: 20,
+       
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        height: 70,
+        minHeight: 70, // allow space for preview
         marginBottom: 7,
         padding: 16,
         borderRadius: 8,
@@ -154,5 +180,10 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         color: 'white',
+    },
+    ingredientsPreview: {
+        marginTop: 4,
+        fontSize: 12,
+        color: '#9aa0a6',
     },
 });

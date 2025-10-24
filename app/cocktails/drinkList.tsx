@@ -155,7 +155,14 @@ export default function DrinkListScreen() {
                 {Array.isArray(drinkList) && drinkList.map((drink, index) => {
                     const drinkName = i18n.language === 'ja' ? drink.strDrinkJa : drink.strDrink;
                     return (
-                        <Link key={index} href={`/cocktails/particulardrink?idDrink=${drink.idDrink}`} asChild>
+                        <Link
+                            key={index}
+                            href={{
+                                pathname: "./particulardrink",
+                                params: { idDrink: drink.idDrink }
+                            }}
+                            asChild
+                        >
                             <TouchableOpacity style={styles.drinkContainer}>
                                 <Image source={getImage(drink.strDrinkThumb)} style={styles.drinkImage} />
                                 <View style={styles.drinkDetails}>
@@ -192,7 +199,7 @@ const styles = StyleSheet.create({
     },
     headerContainer1: {
         alignItems: 'center',
-        marginTop: 40,
+        marginTop: 120,
         height: 300,
         backgroundColor: '#D9DFC6',
         borderRadius: 8,
@@ -234,13 +241,12 @@ const styles = StyleSheet.create({
 
     },
     backButton: {
-        top: 16,
+        position: 'absolute',
+        top: 56,
         left: 16,
-        zIndex: 10,
+        zIndex: 20,
         padding: 10,
-        marginTop: 40,
         width: 50,
-    
     },
     drinkContainer: {
         flexDirection: 'row',

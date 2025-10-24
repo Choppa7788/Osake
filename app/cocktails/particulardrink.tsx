@@ -1,17 +1,21 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
-import { View, Text, Image, StyleSheet, ActivityIndicator, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView, Platform, useColorScheme, Modal, Dimensions, Linking, Alert, Share } from 'react-native';
+import { View, Text, Image, StyleSheet, ActivityIndicator, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView, Platform, useColorScheme, Modal, Dimensions, Linking, Alert, Share, StyleSheet as RNStyleSheet } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { useLocalSearchParams } from 'expo-router';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation} from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { addFavourite, removeFavourite, isFavourite } from '../../assets/database/favouritesStorage';
 import { getNotes, saveNotes } from '../../assets/database/notesDatabase';
+import { getRating, saveRating } from '../../assets/database/ratingsStorage';
 import { getImage } from './imagepath';
 import { useTranslation } from 'react-i18next';
 import "../../i18n";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Export, X } from 'phosphor-react-native';
 import ViewShot from 'react-native-view-shot';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
+import { useUser } from '../_layout';
 
 type Drink = {
     strDrinkJa: string;
@@ -27,17 +31,18 @@ type Drink = {
     strGlass: string;
     measures: string[];
     measuresJA: string[];
-    isFree:boolean; 
+    premium: boolean; 
 };
 
 export default function ParticularDrinkScreen() {
     const { idDrink } = useLocalSearchParams();
     const [drink, setDrink] = useState<Drink | null>(null);
     const [loading, setLoading] = useState(true);
-    const [servings, setServings] = useState(1);
+    const [servings, setServings] = useState<number>(1);
     const navigation = useNavigation();
     const [isFavorite, setIsFavorite] = useState(false);
     const [notes, setNotes] = useState('');
+    const [rating, setRating] = useState(0);
     const { t, i18n } = useTranslation();
     const [unit, setUnit] = useState<'standard' | 'ml' | 'oz'>('standard');
     const [isPremium, setIsPremium] = useState(false);
@@ -46,7 +51,9 @@ export default function ParticularDrinkScreen() {
     const [showIngredientModal, setShowIngredientModal] = useState(false);
     const [selectedIngredient, setSelectedIngredient] = useState('');
     const viewShotRef = useRef<ViewShot>(null);
-    
+
+    const {isPro} = useUser();
+
     const colorScheme = useColorScheme(); // Move this inside the component
     const isDarkMode = colorScheme === 'dark'; // Check if dark mode is enabled
 
@@ -97,21 +104,21 @@ export default function ParticularDrinkScreen() {
                 setNotes(savedNotes || '');
             }
         };
-        fetchNotes();
-    }, [idDrink]);
-
-    useEffect(() => {
-        const fetchPremiumAccess = async () => {
-            try {
-                const premiumAccess = await AsyncStorage.getItem('hasPremiumAccess');
-                setHasPremiumAccess(premiumAccess === 'true'); // Set state based on stored value
-            } catch (error) {
-                console.error('Error fetching premium access:', error);
+        const fetchRating = async () => {
+            if (typeof idDrink === 'string') {
+                const savedRating = await getRating(idDrink);
+                setRating(savedRating || 0);
             }
         };
+        fetchNotes();
+        fetchRating();
+    }, [idDrink]);
+    
 
-        fetchPremiumAccess();
-    }, []);
+    useEffect(() => {
+        setHasPremiumAccess(isPro);
+        setIsPremium(isPro);
+    }, [isPro]);
 
     const handleSaveNotes = async (text: string) => {
         if (drink) {
@@ -120,61 +127,135 @@ export default function ParticularDrinkScreen() {
         }
     };
 
+    const handleSaveRating = async (newRating: number) => {
+        if (drink) {
+            setRating(newRating);
+            await saveRating(drink.idDrink, newRating);
+        }
+    };
+
+    // Helper: category bubble color
+    const getCategoryColor = (cat?: string) => {
+        if (!cat) return '#888';
+        const lower = cat.toLowerCase();
+        if (lower.includes('shot')) return '#1976D2'; // blue
+        if (lower.includes('cocktail')) return '#FB8C00'; // orange
+        const palette = ['#8e44ad', '#16a085', '#e67e22', '#c0392b', '#2980b9', '#27ae60', '#f39c12'];
+        const idx = (cat.charCodeAt(0) || 0) % palette.length;
+        return palette[idx];
+    };
+
+    // Choose the correct measures array by language (VERY IMPORTANT)
+    const measuresArray: Array<any> | undefined = (() => {
+        if (!drink) return undefined;
+        if (i18n.language === 'ja') return (drink as any).measuresJA ?? (drink as any).measures;
+        return (drink as any).measuresEN ?? (drink as any).measures;
+    })();
+
+    // Updated servings change logic: when slider != 1 default to ML and hide STD
     const handleServingsChange = (value: number) => {
         setServings(value);
-    };
-
-    const toggleUnit = () => {
-        setUnit((prevUnit) => {
-            if (prevUnit === 'standard') return 'ml';
-            if (prevUnit === 'ml') return 'oz';
-            return 'standard';
-        });
-    };
-
-    const getMeasure = (measure: string | { standard: string; ml: number; oz: number }) => {
-        if (typeof measure === 'string') {
-            // Check if measure contains numeric values (oz or ml)
-            const ozMatch = measure.match(/(\d+(?:\.\d+)?)\s*oz/i);
-            const mlMatch = measure.match(/(\d+(?:\.\d+)?)\s*ml/i);
-            
-            if (ozMatch) {
-                const value = parseFloat(ozMatch[1]);
-                const adjustedValue = (value * servings).toFixed(1);
-                return measure.replace(ozMatch[0], `${adjustedValue} oz`);
-            } else if (mlMatch) {
-                const value = parseFloat(mlMatch[1]);
-                const adjustedValue = (value * servings).toFixed(1);
-                return measure.replace(mlMatch[0], `${adjustedValue} ml`);
-            } else {
-                // For text-heavy measures, prepend with servings multiplier
-                return servings > 1 ? `${servings} x ${measure}` : measure;
-            }
-        }
-        
-        // For object measures, multiply by servings
-        if (unit === 'ml') {
-            return `${(measure.ml * servings).toFixed(1)} ml`;
-        } else if (unit === 'oz') {
-            return `${(measure.oz * servings).toFixed(1)} oz`;
+        if (value === 1) {
+            // when slider set to 1 allow standard
+            setUnit('standard');
         } else {
-            // For standard unit, check if it contains numeric values
-            const ozMatch = measure.standard.match(/(\d+(?:\.\d+)?)\s*oz/i);
-            const mlMatch = measure.standard.match(/(\d+(?:\.\d+)?)\s*ml/i);
-            
-            if (ozMatch) {
-                const value = parseFloat(ozMatch[1]);
-                const adjustedValue = (value * servings).toFixed(1);
-                return measure.standard.replace(ozMatch[0], `${adjustedValue} oz`);
-            } else if (mlMatch) {
-                const value = parseFloat(mlMatch[1]);
-                const adjustedValue = (value * servings).toFixed(1);
-                return measure.standard.replace(mlMatch[0], `${adjustedValue} ml`);
-            } else {
-                // For text-heavy measures, prepend with servings multiplier
-                return servings > 1 ? `${servings} x ${measure.standard}` : measure.standard;
+            // when slider used (not 1), default to ml and make STD unavailable
+            if (unit === 'standard') setUnit('ml');
+        }
+    };
+
+    // Robust measure renderer handling strings and structured measures, converts ml<->oz where possible
+    const getMeasure = (measure: any) => {
+        if (measure == null || measure === '') return '';
+        // If measure is an object with standard/ml/oz fields
+        if (typeof measure === 'object') {
+            const std = measure.standard ?? '' ;
+            const mlVal = typeof measure.ml === 'number' ? measure.ml : parseFloat(measure.ml as any) || null;
+            const ozVal = typeof measure.oz === 'number' ? measure.oz : parseFloat(measure.oz as any) || null;
+
+            if (unit === 'standard') {
+                if (std) return servings > 1 ? `${servings} x ${std}` : std;
+                if (ozVal != null) return `${(ozVal * servings).toFixed(2)} oz`;
+                if (mlVal != null) return `${(mlVal * servings).toFixed(1)} ml`;
+            }
+
+            if (unit === 'ml') {
+                if (mlVal != null) return `${(mlVal * servings).toFixed(1)} ml`;
+                if (ozVal != null) return `${(ozVal * servings * 29.5735).toFixed(1)} ml`; // convert oz -> ml
+                return std || '';
+            }
+
+            if (unit === 'oz') {
+                if (ozVal != null) return `${(ozVal * servings).toFixed(2)} oz`;
+                if (mlVal != null) return `${(mlVal * servings / 29.5735).toFixed(2)} oz`; // convert ml -> oz
+                return std || '';
             }
         }
+
+        // If measure is a string like "30 ml" or "1 oz" or textual "dash"
+        if (typeof measure === 'string') {
+            const s = measure.trim();
+            // detect numeric ml
+            const mlMatch = s.match(/(\d+(?:\.\d+)?)\s*ml/i);
+            const ozMatch = s.match(/(\d+(?:\.\d+)?)\s*oz/i);
+
+            if (unit === 'standard') {
+                return servings > 1 ? `${servings} x ${s}` : s;
+            }
+
+            if (unit === 'ml') {
+                if (mlMatch) {
+                    const v = parseFloat(mlMatch[1]) * servings;
+                    return `${v.toFixed(1)} ml`;
+                }
+                if (ozMatch) {
+                    const vOz = parseFloat(ozMatch[1]) * servings;
+                    const vMl = vOz * 29.5735;
+                    return `${vMl.toFixed(1)} ml`;
+                }
+                // no numeric unit: keep text, with multiplier if >1
+                return servings > 1 ? `${servings} x ${s}` : s;
+            }
+
+            if (unit === 'oz') {
+                if (ozMatch) {
+                    const v = parseFloat(ozMatch[1]) * servings;
+                    return `${v.toFixed(2)} oz`;
+                }
+                if (mlMatch) {
+                    const vMl = parseFloat(mlMatch[1]) * servings;
+                    const vOz = vMl / 29.5735;
+                    return `${vOz.toFixed(2)} oz`;
+                }
+                return servings > 1 ? `${servings} x ${s}` : s;
+            }
+        }
+
+        return String(measure);
+    };
+
+    const renderStars = () => {
+        return (
+            <View style={styles.ratingContainer}>
+                <Text style={[styles.ratingLabel, { color: textColor }]}>{t("particularDrink.rateThisDrink")}:</Text>
+                <View style={styles.starsContainer}>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                        <TouchableOpacity
+                            key={star}
+                            onPress={() => handleSaveRating(star)}
+                            activeOpacity={0.7}
+                        >
+                            <Ionicons
+                                name={star <= rating ? "star" : "star-outline"}
+                                size={30}
+                                color={star <= rating ? "#FFD700" : "#666"}
+                                style={styles.star}
+                            />
+                        </TouchableOpacity>
+                    ))}
+                </View>
+            </View>
+        );
     };
 
     if (loading) {
@@ -192,16 +273,11 @@ export default function ParticularDrinkScreen() {
             </View>
         );
     }
-    const canIDisplay = () => {
-        if (drink?.isFree) {
-            return true;
-        } else if (hasPremiumAccess) {
-            return true;
-        } else {
-            return false;
-        }
-    };
-    console.log(idDrink, "isFree", drink?.isFree , " can I display", canIDisplay(), " hasPremiumAccess", hasPremiumAccess);
+    // REPLACE gating logic
+    const premiumActive = hasPremiumAccess || isPremium;
+    const isDrinkFree = !drink?.premium; // free when premium flag is false or undefined
+    const canDisplay = isDrinkFree || premiumActive;
+    const isLocked = !canDisplay;
 
 
 
@@ -213,6 +289,9 @@ export default function ParticularDrinkScreen() {
     const drinkTitle =
         i18n.language === 'ja' && drink.strDrinkJa ? drink.strDrinkJa : drink.strDrink;
     const strIngredient = i18n.language === 'ja' ? drink.ingredientsJA : drink.ingredients;
+
+    // Enable vertical scroll for long titles
+    const isLongTitle = (drinkTitle?.length || 0) > 19;
 
     const instructions = i18n.language === 'ja'
         ? Instructions.split('。').filter((instruction) => instruction.trim() !== '').map((instruction, index) => `ステップ${index + 1}: ${instruction.trim()}`)
@@ -299,25 +378,83 @@ export default function ParticularDrinkScreen() {
         setShowIngredientModal(false);
     };
 
+    const formatDrinkNameForShare = (title: string) => {
+        if (!title || title.length <= 16) {
+            return { firstLine: title, secondLine: '' };
+        }
+
+        const words = title.split(' ');
+        let firstLine = '';
+        let secondLine = '';
+        
+        for (const word of words) {
+            if (firstLine.length === 0) {
+                firstLine = word;
+            } else if ((firstLine + ' ' + word).length <= 16) {
+                firstLine += ' ' + word;
+            } else {
+                secondLine = words.slice(words.indexOf(word)).join(' ');
+                break;
+            }
+        }
+        
+        return { firstLine, secondLine };
+    };
+
     return (
         <KeyboardAvoidingView
             style={{ flex: 1 }}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-            <View style={[styles.headerContainer, { backgroundColor: boxColor2}]}>
-                <Text style={[styles.title,{color:textColor}]}>{drinkTitle}</Text>
-                <TouchableOpacity style={styles.headerShareButton} onPress={handleShare}>
-                    <Export size={24} color={textColor} weight="bold" />
+            {/* Premium Gradient Header */}
+            <LinearGradient
+                colors={isDarkMode ? ['#272822','#1b1c19','#121212'] : ['#baf9c9','#8ceea7','#42db7a']}
+                start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                style={[styles.headerContainer]}
+            >
+                {/* Title wrapped in a vertical ScrollView */}
+                <View style={styles.titleWrapper}>
+                    <ScrollView
+                        style={styles.titleScroll}
+                        contentContainerStyle={styles.titleScrollContent}
+                        showsVerticalScrollIndicator={false}
+                        scrollEnabled={isLongTitle}
+                    >
+                        <Text
+                            style={[styles.title, { color: textColor }]}
+                            numberOfLines={isLongTitle ? undefined : 1}
+                        >
+                            {drinkTitle}
+                        </Text>
+                    </ScrollView>
+                </View>
+
+                <TouchableOpacity style={styles.headerShareButton} onPress={handleShare} activeOpacity={0.85}>
+                    <Export size={30} color="#fff" weight="bold" />
                 </TouchableOpacity>
-            </View>
+            </LinearGradient>
             <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
                 <Ionicons name="arrow-back" size={24} color={isDarkMode ? "white" : "black"} />
             </TouchableOpacity>
 
-            <ScrollView style={[styles.container,{backgroundColor}]}>
-                {drink.strDrinkThumb && <Image source={getImage(drink.strDrinkThumb)} style={styles.image} />}
+            <ScrollView style={[styles.container, { backgroundColor }]}>
+                {/* Image with premium shadow - Full width */}
+                {drink?.strDrinkThumb && (
+                    <View style={styles.fullWidthImageContainer}>
+                        <Image source={getImage(drink.strDrinkThumb)} style={styles.fullWidthImage} />
+                    </View>
+                )}
+
+                {/* Category bubble below image */}
+                <View style={styles.bubbleRow}>
+                    <View style={[styles.categoryBubble, { backgroundColor: getCategoryColor(drink?.strCategory) }]}>
+                        <Text style={styles.bubbleText}>{drink?.strCategory}</Text>
+                    </View>
+                </View>
+
+                {/* Slider */}
                 <View style={styles.sliderContainer}>
-                    <Text style={[styles.sliderLabel,{color:textColor}]}>{t("particularDrink.serving")} : {servings}</Text>
+                    <Text style={[styles.sliderLabel, { color: textColor }]}>{t("particularDrink.serving")} : {servings}</Text>
                     <Slider
                         style={styles.slider}
                         minimumValue={1}
@@ -325,43 +462,109 @@ export default function ParticularDrinkScreen() {
                         step={1}
                         value={servings}
                         onValueChange={handleServingsChange}
+                        minimumTrackTintColor={isDarkMode ? "#1DB954" : "#42db7a"}
+                        thumbTintColor={isDarkMode ? "#1DB954" : "#42db7a"}
                     />
                 </View>
+
+                {/* Ingredients header + unit selector */}
                 <View style={styles.ingredientsHeader}>
-                    <Text style={[styles.subtitle,{color:textColor}]}>{t("particularDrink.ingredients")}:</Text>
-                    <TouchableOpacity style={styles.toggleButton} onPress={toggleUnit}>
-                        <Text style={styles.toggleButtonText}>{unit.toUpperCase()}</Text>
-                    </TouchableOpacity>
-                </View>
-                <View style={[styles.ingredientsBox, { backgroundColor: boxColor2 }]}>
-                    {strIngredient.map((ingredient, index) => (
-                        <TouchableOpacity 
-                            key={index} 
-                            style={styles.ingredientRow}
-                            onPress={() => handleIngredientPress(ingredient)}
-                            activeOpacity={0.7}
-                        >
-                            <Text style={[styles.ingredient, { color: textColor }]}>{ingredient}</Text>
-                            {drink.measuresJA && drink.measuresJA[index] && (
-                                <Text style={[styles.measure, { color: textColor }]}>
-                                    {getMeasure(drink.measuresJA[index])}
-                                </Text>
+                    <Text style={[styles.subtitle, { color: textColor }]}>{t("particularDrink.ingredients")}:</Text>
+                    {!isLocked && (
+                        <View style={styles.unitSelector}>
+                            {servings === 1 ? (
+                                ['standard', 'ml', 'oz'].map(opt => (
+                                    <TouchableOpacity
+                                        key={opt}
+                                        onPress={() => setUnit(opt as 'standard' | 'ml' | 'oz')}
+                                        style={[styles.unitOption, unit === opt && styles.unitOptionActive]}
+                                        activeOpacity={0.7}
+                                    >
+                                        <Text style={[styles.unitOptionText, unit === opt && styles.unitOptionTextActive]}>
+                                            {opt === 'standard' ? 'STD' : opt.toUpperCase()}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))
+                            ) : (
+                                ['ml', 'oz'].map(opt => (
+                                    <TouchableOpacity
+                                        key={opt}
+                                        onPress={() => setUnit(opt as 'ml' | 'oz')}
+                                        style={[styles.unitOption, unit === opt && styles.unitOptionActive]}
+                                        activeOpacity={0.7}
+                                    >
+                                        <Text style={[styles.unitOptionText, unit === opt && styles.unitOptionTextActive]}>
+                                            {opt.toUpperCase()}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))
                             )}
-                        </TouchableOpacity>
-                    ))}
-                </View>
-                <Text style={[styles.subtitle,{color:textColor}]}>{t("particularDrink.instructions")}:</Text>
-                <View style={[styles.instructionsBox,{backgroundColor:boxColor2}]}>
-                    {!canIDisplay() && (
-                        <View style={styles.overlay}>
-                            <Text style={styles.overlayText}>Premium Drink, Upgrade to See</Text>
                         </View>
                     )}
-                    {canIDisplay() ? (
-                        instructions.map((instruction, index) => (
-                            <Text key={index} style={[styles.instructions,{color:textColor}]}>{instruction}</Text>
+                </View>
+
+                {/* Ingredients list */}
+                <View style={[
+                    styles.ingredientsBox, 
+                    isDarkMode ? styles.glassDark : styles.glassLight,
+                    isLocked && styles.lockedSection
+                ]}>
+                    {isLocked ? (
+                        <View style={styles.lockedContent}>
+                            <TouchableOpacity
+                                style={styles.upgradeButton}
+                                onPress={() => navigation.navigate('pages/upgrade' as never)}
+                                activeOpacity={0.9}
+                            >
+                                <Text style={styles.upgradeButtonText}>{t("particularDrink.upgrade")}</Text>
+                            </TouchableOpacity>
+                        </View>
+                    ) : (
+                        strIngredient.map((ingredient, index) => (
+                            <TouchableOpacity
+                                key={index}
+                                style={styles.ingredientRow}
+                                onPress={() => handleIngredientPress(ingredient)}
+                                activeOpacity={0.7}
+                            >
+                                <Text style={[styles.ingredient, { color: textColor }]}>{ingredient}</Text>
+                                {measuresArray && measuresArray[index] && (
+                                    <Text style={[styles.measure, { color: textColor }]}>
+                                        {getMeasure(measuresArray[index])}
+                                    </Text>
+                                )}
+                            </TouchableOpacity>
                         ))
-                    ) : null}
+                    )}
+                </View>
+
+                {/* Glass section below ingredients */}
+                <View style={[styles.glassSection, isDarkMode ? styles.glassDark : styles.glassLight]}>
+                    <Text style={[styles.glassLabel, { color: textColor }]}>{t("particularDrink.glass")}</Text>
+                    <Text style={[styles.glassValue, { color: textColor }]}>{drink.strGlass}</Text>
+                </View>
+
+                <Text style={[styles.subtitle, { color: textColor }]}>{t("particularDrink.instructions")}:</Text>
+                <View style={[
+                    styles.instructionsBox,
+                    isDarkMode ? styles.glassDark : styles.glassLight,
+                    isLocked && styles.lockedInstructionsSection
+                ]}>
+                    {isLocked ? (
+                        <View style={styles.lockedContent}>
+                            <TouchableOpacity
+                                style={styles.upgradeButton}
+                                onPress={() => navigation.navigate('pages/upgrade' as never)}
+                                activeOpacity={0.9}
+                            >
+                                <Text style={styles.upgradeButtonText}>Upgrade to Pro</Text>
+                            </TouchableOpacity>
+                        </View>
+                    ) : (
+                        instructions.map((instruction, index) => (
+                            <Text key={index} style={[styles.instructions, { color: textColor }]}>{instruction}</Text>
+                        ))
+                    )}
                 </View>
                 <Text style={[styles.subtitle1,{color:textColor}]}>{t("particularDrink.notes")}:</Text>
                 <TextInput
@@ -372,6 +575,10 @@ export default function ParticularDrinkScreen() {
                     onChangeText={handleSaveNotes}
                     placeholder={t("particularDrink.notes_place_holder")}
                 />
+
+                {/* Rating Section */}
+                {renderStars()}
+
                 <TouchableOpacity style={styles.favouriteButton} onPress={handleAddToFavourite}>
                     <Text style={styles.favorite}>
                         {isFavorite
@@ -457,11 +664,18 @@ export default function ParticularDrinkScreen() {
                                         style={styles.shareImage} 
                                     />
                                 )}
-                                <View style={styles.osakerBrandOverlay}>
-                                    <Text style={styles.osakeBrandText}>OSAKE</Text>
-                                </View>
                                 <View style={styles.drinkNameOverlay}>
-                                    <Text style={styles.shareImageName}>{drinkTitle}</Text>
+                                    {(() => {
+                                        const { firstLine, secondLine } = formatDrinkNameForShare(drinkTitle || '');
+                                        return secondLine ? (
+                                            <>
+                                                <Text style={styles.shareImageName}>{firstLine}</Text>
+                                                <Text style={styles.shareImageName}>{secondLine}</Text>
+                                            </>
+                                        ) : (
+                                            <Text style={styles.shareImageName}>{firstLine}</Text>
+                                        );
+                                    })()}
                                 </View>
                                 <View style={styles.ingredientsOverlay}>
                                     <Text style={styles.ingredientsOverlayTitle}>Ingredients:</Text>
@@ -500,51 +714,79 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 16,
     },
+    bubbleRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
     backButton: {
-        top: 40,
-        left: 10,
-        zIndex: 10,
+        position: 'absolute',
+        top: 56,
+        left: 16,
+        zIndex: 20,
         padding: 10,
-        marginTop: 30,
         width: 50,
-        marginBottom: 20
-    
     },
     headerContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 10,
+        paddingHorizontal: 10,
+        paddingBottom: 12,
         height: 120,
-        position: 'absolute', 
-        top: 0, 
-        left: 0, 
+        position: 'absolute',
+        top: 0,
+        left: 0,
         right: 0,
         zIndex: 10,
+      
+        overflow: 'hidden',
     },
+    // Title wrapper and scroll styles for long titles
+    titleWrapper: {
+        width: '70%',
+        height: 90,
+        marginTop: 80,
+        marginBottom: 16,
+        overflow: 'hidden',
+    },
+    titleScroll: {
+        flex: 1,
+    },
+    titleScrollContent: {
+        flexGrow: 1,
+        justifyContent: 'center',
+    },
+    // Simplified title text style (layout handled by wrapper)
     title: {
         fontSize: 30,
-        height: 50,
         fontWeight: 'bold',
-        marginTop: 100,
-        marginBottom: 16,
         textAlign: 'center',
-        width: '70%',
-        overflow: 'hidden',
     },
     headerShareButton: {
         position: 'absolute',
-        right: 20,
-        top: 75,
-        padding: 8,
+        right: 18,
+        bottom: 18,
+        padding: 12,
+        borderRadius: 32,
+        backgroundColor: '#1DB954',
+        shadowColor: '#000',
+        shadowOpacity: 0.35,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
+        elevation: 8,
     },
-    image: {
+    fullWidthImageContainer: {
         width: '100%',
-        height: 300,
-        borderRadius: 10,
-        marginTop:50,
+        marginTop: 120,
         marginBottom: 16,
-        resizeMode: 'contain',
+        backgroundColor: 'transparent',
+    },
+    fullWidthImage: {
+        width: '100%',
+        height: 400,
+        resizeMode: 'cover',
     },
     subtitle: {
         
@@ -564,16 +806,33 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 8,
     },
-    toggleButton: {
-        backgroundColor: '#1DB954',
-        paddingVertical: 5,
-        paddingHorizontal: 15,
-        borderRadius: 20,
+    unitSelector: {
+        flexDirection: 'row',
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        padding: 4,
+        borderRadius: 28,
+        gap: 6,
     },
-    toggleButtonText: {
+ unitOption: {
+        paddingVertical: 6,
+        paddingHorizontal: 14,
+        borderRadius: 18,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.25)',
+        backgroundColor: 'transparent',
+    },
+    unitOptionActive: {
+        backgroundColor: '#1DB954',
+        borderColor: '#1DB954',
+    },
+    unitOptionText: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: '#cfcfcf',
+        letterSpacing: 0.5,
+    },
+    unitOptionTextActive: {
         color: '#fff',
-        fontWeight: 'bold',
-        fontSize: 14,
     },
     ingredientsBox: {
         borderWidth: 1,
@@ -582,6 +841,23 @@ const styles = StyleSheet.create({
         padding: 16,
         marginBottom: 16,
         backgroundColor: '#f9f9f9',
+        position: 'relative', // allow absolute blur overlay
+    },
+    glassDark: {
+        backgroundColor: 'rgba(255,255,255,0.06)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.08)',
+        borderRadius: 18,
+        padding: 16,
+        marginBottom: 18,
+    },
+    glassLight: {
+        backgroundColor: 'rgba(0,0,0,0.04)',
+        borderWidth: 1,
+        borderColor: 'rgba(0,0,0,0.06)',
+        borderRadius: 18,
+        padding: 16,
+        marginBottom: 18,
     },
     ingredientRow: {
         flexDirection: 'row',
@@ -605,6 +881,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         padding: 16,
         backgroundColor: '#f9f9f9',
+        position: 'relative', // allow absolute blur overlay
     },
     instructions: {
         fontSize: 16,
@@ -684,10 +961,10 @@ const styles = StyleSheet.create({
     shareModalContent: {
         width: Dimensions.get('window').width * 0.9,
         maxHeight: Dimensions.get('window').height * 0.8,
-        borderRadius: 20,
         padding: 20,
         alignItems: 'center',
         position: 'relative',
+ 
     },
     closeButton: {
         position: 'absolute',
@@ -708,7 +985,7 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         resizeMode: 'cover',
     },
-    osakerBrandOverlay: {
+    tailTenderBrandOverlay: {
         position: 'absolute',
         top: 15,
         left: 15,
@@ -722,9 +999,9 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 5,
     },
-    osakeBrandText: {
+    BrandText: {
         color: '#000',
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: 'bold',
         fontStyle: 'italic',
     },
@@ -741,11 +1018,15 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 4,
         elevation: 5,
+        maxWidth: 180,
+        alignItems: 'flex-end',
     },
     shareImageName: {
         color: 'white',
-        fontSize: 18,
+        fontSize: 14,
         fontWeight: 'bold',
+        textAlign: 'right',
+        lineHeight: 16,
     },
     ingredientsOverlay: {
         position: 'absolute',
@@ -775,7 +1056,6 @@ const styles = StyleSheet.create({
     },
     shareButtonContainer: {
         alignItems: 'center',
-        marginTop: 20,
         width: '100%',
     },
     bigShareButton: {
@@ -856,5 +1136,125 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
+    },
+    overlayCenter: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 20,
+        zIndex: 5,
+    },
+    overlayShade: {
+        zIndex: 4,
+    },
+    // CTA styles for upgrade
+    upgradeCta: {
+        backgroundColor: '#1DB954',
+        paddingVertical: 12,
+        paddingHorizontal: 22,
+        borderRadius: 24,
+        shadowColor: '#000',
+        shadowOpacity: 0.25,
+        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 3 },
+        elevation: 6,
+    },
+    upgradeCtaText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '800',
+        letterSpacing: 0.3,
+    },
+    imageShadowWrap: {
+        alignSelf: 'center',
+        borderRadius: 16,
+        marginBottom: 10,
+        marginTop: 18,
+        shadowColor: '#000',
+        shadowOpacity: 0.18,
+        shadowRadius: 18,
+        shadowOffset: { width: 0, height: 10 },
+        elevation: 10,
+        backgroundColor: 'transparent',
+        width: '98%',
+    },
+    categoryBubble: {
+        paddingHorizontal: 18,
+        paddingVertical: 8,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        minWidth: 100,
+        shadowColor: '#000',
+        shadowOpacity: 0.12,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
+        elevation: 4,
+    },
+    bubbleText: {
+        color: '#fff',
+        fontWeight: '700',
+        fontSize: 14,
+        letterSpacing: 0.2,
+        textAlign: 'center',
+    },
+    glassSection: {
+        borderWidth: 0,
+        borderRadius: 16,
+        padding: 14,
+        marginBottom: 18,
+        marginHorizontal: 8,
+        backgroundColor: 'transparent',
+        alignItems: 'center',
+    },
+    glassLabel: { fontSize: 16, fontWeight: '700', marginBottom: 6 },
+    glassValue: { fontSize: 15, opacity: 0.95 },
+    lockedSection: {
+        minHeight: 200,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    lockedInstructionsSection: {
+        height: 300,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    lockedContent: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        flex: 1,
+    },
+    upgradeButton: {
+        backgroundColor: '#1DB954',
+        paddingVertical: 15,
+        paddingHorizontal: 30,
+        borderRadius: 25,
+        shadowColor: '#000',
+        shadowOpacity: 0.25,
+        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 3 },
+        elevation: 6,
+    },
+    upgradeButtonText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    ratingContainer: {
+        marginTop: 16,
+        marginBottom: 16,
+        alignItems: 'center',
+    },
+    ratingLabel: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 8,
+    },
+    starsContainer: {
+        flexDirection: 'row',
+        gap: 8,
+    },
+    star: {
+        marginHorizontal: 2,
     },
 });
